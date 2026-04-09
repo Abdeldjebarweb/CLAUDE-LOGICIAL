@@ -1,0 +1,23 @@
+export const metadata = { title: 'Mentions légales – AEAB' }
+
+export default function MentionsLegalesPage() {
+  return (
+    <section className="py-20">
+      <div className="max-w-3xl mx-auto px-4">
+        <h1 className="font-heading text-3xl font-bold text-gray-900 mb-8">Mentions légales</h1>
+        <div className="prose prose-gray max-w-none space-y-6 text-gray-600">
+          <h3 className="font-heading font-bold text-gray-900">Éditeur du site</h3>
+          <p>Association des Étudiants Algériens à Bordeaux (AEAB)<br/>Association loi 1901<br/>Siège social : Bordeaux, France<br/>Email : contact@aeab.fr</p>
+          <h3 className="font-heading font-bold text-gray-900">Responsable de publication</h3>
+          <p>Le Président de l&apos;AEAB</p>
+          <h3 className="font-heading font-bold text-gray-900">Hébergement</h3>
+          <p>Vercel Inc.<br/>440 N Barranca Ave #4133<br/>Covina, CA 91723, USA<br/>https://vercel.com</p>
+          <h3 className="font-heading font-bold text-gray-900">Base de données</h3>
+          <p>Supabase Inc.<br/>https://supabase.com</p>
+          <h3 className="font-heading font-bold text-gray-900">Propriété intellectuelle</h3>
+          <p>L&apos;ensemble du contenu de ce site (textes, images, logos) est la propriété de l&apos;AEAB sauf mention contraire. Toute reproduction sans autorisation est interdite.</p>
+        </div>
+      </div>
+    </section>
+  )
+}
