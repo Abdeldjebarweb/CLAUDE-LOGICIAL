@@ -1,8 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   AEAB — page.tsx (Homepage)
-   Copiez ce fichier dans : app/(public)/page.tsx
-═══════════════════════════════════════════════════════════ */
-
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { ArrowRight, Heart, Users, Calendar, BookOpen, HandHeart, Star } from 'lucide-react'
