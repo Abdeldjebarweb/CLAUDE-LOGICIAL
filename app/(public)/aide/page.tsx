@@ -15,6 +15,8 @@ const helpTypes = [
   'Autre besoin',
 ]
 
+const ATTESTATION = "Attestation d'hébergement"
+
 export default function AidePage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -26,9 +28,17 @@ export default function AidePage() {
   const [passportFile, setPassportFile] = useState<File | null>(null)
   const [inscriptionFile, setInscriptionFile] = useState<File | null>(null)
 
+  const needsDocs = form.help_type === ATTESTATION
+
   const set = (key: string) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => setForm({ ...form, [key]: e.target.value })
+  ) => {
+    setForm(prev => ({ ...prev, [key]: e.target.value }))
+    if (key === 'help_type' && e.target.value !== ATTESTATION) {
+      setPassportFile(null)
+      setInscriptionFile(null)
+    }
+  }
 
   const uploadFile = async (file: File, folder: string): Promise<string | null> => {
     const ext = file.name.split('.').pop()
@@ -41,27 +51,24 @@ export default function AidePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!passportFile || !inscriptionFile) {
-      alert('Veuillez joindre votre passeport et votre attestation d\'inscription.')
+    if (needsDocs && (!passportFile || !inscriptionFile)) {
+      alert("Pour une demande d'attestation d'hébergement, veuillez joindre votre passeport et votre attestation d'inscription.")
       return
     }
     setLoading(true)
-
-    setUploadProgress('Envoi du passeport...')
-    const passportUrl = await uploadFile(passportFile, 'passeports')
-
-    setUploadProgress("Envoi de l'attestation d'inscription...")
-    const inscriptionUrl = await uploadFile(inscriptionFile, 'inscriptions')
-
+    let passportUrl = null
+    let inscriptionUrl = null
+    if (needsDocs && passportFile && inscriptionFile) {
+      setUploadProgress('Envoi du passeport...')
+      passportUrl = await uploadFile(passportFile, 'passeports')
+      setUploadProgress("Envoi de l'attestation d'inscription...")
+      inscriptionUrl = await uploadFile(inscriptionFile, 'inscriptions')
+    }
     setUploadProgress('Enregistrement de la demande...')
     const { error } = await supabase.from('help_requests').insert([{
-      ...form,
-      age: parseInt(form.age) || 0,
-      status: 'new',
-      passport_url: passportUrl,
-      inscription_url: inscriptionUrl,
+      ...form, age: parseInt(form.age) || 0, status: 'new',
+      passport_url: passportUrl, inscription_url: inscriptionUrl,
     }])
-
     setLoading(false)
     setUploadProgress('')
     if (!error) setSuccess(true)
@@ -72,9 +79,7 @@ export default function AidePage() {
       <div className="text-center animate-fade-in-up">
         <CheckCircle className="w-16 h-16 text-vert mx-auto mb-4" />
         <h2 className="font-heading text-2xl font-bold text-gray-900">Demande envoyée !</h2>
-        <p className="text-gray-500 mt-2 max-w-md">
-          Nous avons bien reçu votre demande avec vos documents. Un membre de l&apos;équipe vous contactera très prochainement.
-        </p>
+        <p className="text-gray-500 mt-2 max-w-md">Nous avons bien reçu votre demande. Un membre de l&apos;équipe vous contactera très prochainement.</p>
       </div>
     </div>
   )
@@ -91,8 +96,6 @@ export default function AidePage() {
       <section className="py-20">
         <div className="max-w-2xl mx-auto px-4">
           <form onSubmit={handleSubmit} className="space-y-5">
-
-            {/* Infos personnelles */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div><label className="form-label">Nom *</label><input required className="form-input" value={form.last_name} onChange={set('last_name')} /></div>
               <div><label className="form-label">Prénom *</label><input required className="form-input" value={form.first_name} onChange={set('first_name')} /></div>
@@ -133,78 +136,62 @@ export default function AidePage() {
               <textarea required rows={5} className="form-input" value={form.description} onChange={set('description')} />
             </div>
 
-            {/* Documents obligatoires */}
-            <div className="bg-vert-50 border border-vert-200 rounded-xl p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="w-5 h-5 text-vert" />
-                <h3 className="font-heading font-bold text-gray-900">Documents obligatoires</h3>
-              </div>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4 flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 shrink-0" />
-                <p className="text-xs text-yellow-700">
-                  Pour traiter votre demande d&apos;attestation d&apos;hébergement, nous avons besoin de votre passeport et de votre attestation d&apos;inscription à Bordeaux.
-                </p>
-              </div>
+            {/* Documents — seulement pour Attestation d'hébergement */}
+            {needsDocs && (
+              <div className="bg-vert-50 border border-vert-200 rounded-xl p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <FileText className="w-5 h-5 text-vert" />
+                  <h3 className="font-heading font-bold text-gray-900">Documents requis</h3>
+                  <span className="text-xs bg-rouge text-white px-2 py-0.5 rounded-full ml-1">Obligatoires</span>
+                </div>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 shrink-0" />
+                  <p className="text-xs text-yellow-700">Pour une attestation d&apos;hébergement, nous avons besoin de votre passeport et de votre attestation d&apos;inscription à Bordeaux.</p>
+                </div>
 
-              {/* Passeport */}
-              <div className="mb-4">
-                <label className="form-label">Passeport (scan ou photo) *</label>
-                <div className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${passportFile ? 'border-vert bg-vert-50' : 'border-gray-300 hover:border-vert hover:bg-vert-50'}`}
-                  onClick={() => document.getElementById('passport-input')?.click()}>
-                  <input
-                    id="passport-input"
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    className="hidden"
-                    onChange={e => setPassportFile(e.target.files?.[0] || null)}
-                  />
-                  {passportFile ? (
-                    <div className="flex items-center justify-center gap-2 text-vert">
-                      <CheckCircle className="w-5 h-5" />
-                      <span className="text-sm font-medium">{passportFile.name}</span>
-                    </div>
-                  ) : (
-                    <div>
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">Cliquez pour uploader votre passeport</p>
-                      <p className="text-xs text-gray-400 mt-1">PDF, JPG, PNG — max 10 Mo</p>
-                    </div>
-                  )}
+                <div className="mb-4">
+                  <label className="form-label">Passeport (scan ou photo) *</label>
+                  <div className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${passportFile ? 'border-vert bg-white' : 'border-gray-300 hover:border-vert'}`}
+                    onClick={() => document.getElementById('passport-input')?.click()}>
+                    <input id="passport-input" type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden"
+                      onChange={e => setPassportFile(e.target.files?.[0] || null)} />
+                    {passportFile ? (
+                      <div className="flex items-center justify-center gap-2 text-vert">
+                        <CheckCircle className="w-5 h-5" /><span className="text-sm font-medium">{passportFile.name}</span>
+                      </div>
+                    ) : (
+                      <div><Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">Cliquez pour uploader votre passeport</p>
+                        <p className="text-xs text-gray-400 mt-1">PDF, JPG, PNG — max 10 Mo</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="form-label">Attestation d&apos;inscription à Bordeaux *</label>
+                  <div className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${inscriptionFile ? 'border-vert bg-white' : 'border-gray-300 hover:border-vert'}`}
+                    onClick={() => document.getElementById('inscription-input')?.click()}>
+                    <input id="inscription-input" type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden"
+                      onChange={e => setInscriptionFile(e.target.files?.[0] || null)} />
+                    {inscriptionFile ? (
+                      <div className="flex items-center justify-center gap-2 text-vert">
+                        <CheckCircle className="w-5 h-5" /><span className="text-sm font-medium">{inscriptionFile.name}</span>
+                      </div>
+                    ) : (
+                      <div><Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">Cliquez pour uploader votre attestation</p>
+                        <p className="text-xs text-gray-400 mt-1">PDF, JPG, PNG — max 10 Mo</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              {/* Attestation inscription */}
-              <div>
-                <label className="form-label">Attestation d&apos;inscription à Bordeaux *</label>
-                <div className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${inscriptionFile ? 'border-vert bg-vert-50' : 'border-gray-300 hover:border-vert hover:bg-vert-50'}`}
-                  onClick={() => document.getElementById('inscription-input')?.click()}>
-                  <input
-                    id="inscription-input"
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    className="hidden"
-                    onChange={e => setInscriptionFile(e.target.files?.[0] || null)}
-                  />
-                  {inscriptionFile ? (
-                    <div className="flex items-center justify-center gap-2 text-vert">
-                      <CheckCircle className="w-5 h-5" />
-                      <span className="text-sm font-medium">{inscriptionFile.name}</span>
-                    </div>
-                  ) : (
-                    <div>
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">Cliquez pour uploader votre attestation</p>
-                      <p className="text-xs text-gray-400 mt-1">PDF, JPG, PNG — max 10 Mo</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            )}
 
             {uploadProgress && (
               <div className="flex items-center gap-3 text-sm text-vert bg-vert-50 p-3 rounded-lg">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                {uploadProgress}
+                <Loader2 className="w-4 h-4 animate-spin" />{uploadProgress}
               </div>
             )}
 
