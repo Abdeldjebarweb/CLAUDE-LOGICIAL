@@ -1,8 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   AEAB — Navbar.tsx
-   Copiez ce fichier dans : components/public/Navbar.tsx
-═══════════════════════════════════════════════════════════ */
-
 'use client'
 
 import { useState, useEffect } from 'react'
