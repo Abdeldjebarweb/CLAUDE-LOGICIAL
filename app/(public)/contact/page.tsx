@@ -3,30 +3,19 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { CheckCircle, Loader2, Mail, MapPin, Phone, Clock, MessageCircle, AlertCircle } from 'lucide-react'
-import { useAntiBot, AntiBotField, checkAntiBot } from '@/components/AntiBot'
 
 export default function ContactPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ nom: '', email: '', subject: '', message: '' })
-  const antiBot = useAntiBot()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-
-    // Vérification anti-bot
-    if (!checkAntiBot(antiBot)) {
-      setError('Soumission trop rapide. Attendez quelques secondes et réessayez.')
-      return
-    }
-
-    // Validation basique
     if (form.nom.length < 2) { setError('Nom trop court.'); return }
     if (!form.email.includes('@')) { setError('Email invalide.'); return }
-    if (form.message.length < 10) { setError('Message trop court (minimum 10 caractères).'); return }
-
+    if (form.message.length < 10) { setError('Message trop court.'); return }
     setLoading(true)
     const { error: err } = await supabase.from('contacts').insert([{
       nom: form.nom.slice(0, 100),
@@ -36,7 +25,7 @@ export default function ContactPage() {
       is_read: false,
     }])
     setLoading(false)
-    if (err) setError('Erreur lors de l\'envoi. Réessayez ou appelez le 06 70 37 67 67.')
+    if (err) setError('Erreur. Appelez le 06 70 37 67 67.')
     else setSuccess(true)
   }
 
@@ -73,34 +62,26 @@ export default function ContactPage() {
               </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Champ anti-bot invisible */}
-              <AntiBotField value={antiBot.honeypot} onChange={antiBot.setHoneypot} />
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label className="form-label">Nom *</label>
-                  <input required className="form-input" maxLength={100} placeholder="Votre nom"
-                    value={form.nom} onChange={set('nom')} />
+                  <input required className="form-input" maxLength={100} value={form.nom} onChange={set('nom')} />
                 </div>
                 <div>
                   <label className="form-label">Email *</label>
-                  <input required type="email" className="form-input" maxLength={200} placeholder="votre@email.com"
-                    value={form.email} onChange={set('email')} />
+                  <input required type="email" className="form-input" maxLength={200} value={form.email} onChange={set('email')} />
                 </div>
               </div>
               <div>
                 <label className="form-label">Sujet *</label>
-                <input required className="form-input" maxLength={200} placeholder="Ex: Demande d'information"
-                  value={form.subject} onChange={set('subject')} />
+                <input required className="form-input" maxLength={200} value={form.subject} onChange={set('subject')} />
               </div>
               <div>
-                <label className="form-label">Message * <span className="text-gray-400 font-normal text-xs">(max 2000 caractères)</span></label>
-                <textarea required rows={6} className="form-input" maxLength={2000}
-                  placeholder="Décrivez votre demande..." value={form.message} onChange={set('message')} />
+                <label className="form-label">Message *</label>
+                <textarea required rows={6} className="form-input" maxLength={2000} value={form.message} onChange={set('message')} />
                 <p className="text-xs text-gray-400 mt-1 text-right">{form.message.length}/2000</p>
               </div>
-              <button type="submit" disabled={loading}
-                className="btn-primary w-full flex items-center justify-center gap-2">
+              <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
                 {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Envoi...</> : <><MessageCircle className="w-5 h-5" /> Envoyer le message</>}
               </button>
             </form>
