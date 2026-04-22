@@ -13,13 +13,23 @@ const navLinks = [
       { href: '/a-propos',  label: 'À propos' },
       { href: '/mission',   label: 'Notre mission' },
       { href: '/equipe',    label: 'Équipe & bénévoles' },
+      { href: '/benevole',  label: '❤ Devenir bénévole' },
     ],
   },
   { href: '/evenements', label: 'Événements' },
   { href: '/actualites', label: 'Actualités' },
-  { href: '/guide',      label: 'Guide étudiant' },
-  { href: '/galerie',    label: 'Galerie' },
-  { href: '/contact',    label: 'Contact' },
+  {
+    label: 'Communauté',
+    children: [
+      { href: '/membre',        label: '👤 Espace membre' },
+      { href: '/annuaire',      label: '📋 Annuaire' },
+      { href: '/covoiturage',   label: '🚗 Covoiturage' },
+      { href: '/transporteurs', label: '✈️ Transporteurs' },
+      { href: '/votes',         label: '🗳️ Votes & sondages' },
+    ],
+  },
+  { href: '/guide',   label: 'Guide' },
+  { href: '/contact', label: 'Contact' },
 ]
 
 // Drapeau algérien SVG
