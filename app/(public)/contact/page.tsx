@@ -30,18 +30,14 @@ export default function ContactUnifiePage() {
   const [type, setType] = useState('contact')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
 
-  // Champs communs
   const [nom, setNom] = useState('')
   const [prenom, setPrenom] = useState('')
   const [email, setEmail] = useState('')
   const [telephone, setTelephone] = useState('')
-
-  // Contact
   const [sujet, setSujet] = useState('')
   const [message, setMessage] = useState('')
-
-  // Aide
   const [age, setAge] = useState('')
   const [institution, setInstitution] = useState('')
   const [filiere, setFiliere] = useState('')
@@ -49,13 +45,9 @@ export default function ContactUnifiePage() {
   const [helpType, setHelpType] = useState('')
   const [urgence, setUrgence] = useState('medium')
   const [description, setDescription] = useState('')
-
-  // Documents pour attestation
   const [carteId, setCarteId] = useState<File | null>(null)
   const [attestationFac, setAttestationFac] = useState<File | null>(null)
   const [uploadProgress, setUploadProgress] = useState('')
-
-  // Bénévole
   const [disponibilites, setDisponibilites] = useState('')
   const [experience, setExperience] = useState('')
   const [motivation, setMotivation] = useState('')
@@ -81,50 +73,77 @@ export default function ContactUnifiePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
 
-    // Vérification documents pour attestation
     if (type === 'aide' && helpType === "Attestation d'hébergement" && (!carteId || !attestationFac)) {
-      alert("Veuillez joindre votre carte d'identité et votre attestation d'inscription.")
+      setError("Veuillez joindre votre carte d'identité et votre attestation d'inscription.")
       return
     }
 
     setLoading(true)
 
-    if (type === 'contact') {
-      await supabase.from('contacts').insert([{
-        nom: `${prenom} ${nom}`.trim(),
-        email, subject: sujet, message, is_read: false,
-      }])
-    } else if (type === 'aide') {
-      let carteIdUrl = null
-      let attestationFacUrl = null
+    try {
+      if (type === 'contact') {
+        const { error: err } = await supabase.from('contacts').insert([{
+          nom: `${prenom} ${nom}`.trim(),
+          email: email.toLowerCase().trim(),
+          sujet,
+          message,
+          statut: 'nouveau',
+        }])
+        if (err) throw err
 
-      if (helpType === "Attestation d'hébergement" && carteId && attestationFac) {
-        setUploadProgress("Envoi de la carte d'identité...")
-        carteIdUrl = await uploadFile(carteId, 'cartes-identite')
-        setUploadProgress("Envoi de l'attestation d'inscription...")
-        attestationFacUrl = await uploadFile(attestationFac, 'attestations-fac')
-        setUploadProgress('')
+      } else if (type === 'aide') {
+        let carteIdUrl = null
+        let attestationFacUrl = null
+
+        if (helpType === "Attestation d'hébergement" && carteId && attestationFac) {
+          setUploadProgress("Envoi de la carte d'identité...")
+          carteIdUrl = await uploadFile(carteId, 'cartes-identite')
+          setUploadProgress("Envoi de l'attestation...")
+          attestationFacUrl = await uploadFile(attestationFac, 'attestations-fac')
+          setUploadProgress('')
+        }
+
+        const { error: err } = await supabase.from('help_requests').insert([{
+          first_name: prenom,
+          last_name: nom,
+          email: email.toLowerCase().trim(),
+          phone: telephone,
+          age: parseInt(age) || 0,
+          institution,
+          field: filiere,
+          situation,
+          help_type: helpType,
+          urgency: urgence,
+          description,
+          status: 'new',
+          passport_url: carteIdUrl,
+          inscription_url: attestationFacUrl,
+        }])
+        if (err) throw err
+
+      } else if (type === 'benevole') {
+        const { error: err } = await supabase.from('benevoles').insert([{
+          nom,
+          prenom,
+          email: email.toLowerCase().trim(),
+          telephone,
+          disponibilites,
+          experience,
+          motivation,
+          domaines,
+          statut: 'nouveau',
+        }])
+        if (err) throw err
       }
 
-      await supabase.from('help_requests').insert([{
-        first_name: prenom, last_name: nom, email, phone: telephone,
-        age: parseInt(age) || 0, institution, field: filiere,
-        situation, help_type: helpType, urgency: urgence,
-        description, status: 'new',
-        passport_url: carteIdUrl,
-        inscription_url: attestationFacUrl,
-      }])
-    } else if (type === 'benevole') {
-      await supabase.from('benevoles').insert([{
-        nom, prenom, email, telephone,
-        disponibilites, experience, motivation,
-        domaines, statut: 'nouveau',
-      }])
+      setSuccess(true)
+    } catch (err: any) {
+      setError("Erreur lors de l'envoi. Appelez le 06 70 37 67 67.")
     }
 
     setLoading(false)
-    setSuccess(true)
   }
 
   if (success) return (
@@ -139,9 +158,8 @@ export default function ContactUnifiePage() {
           {type === 'aide' && "Un membre de l'équipe vous contactera très prochainement."}
           {type === 'benevole' && "L'équipe AEAB examinera votre candidature et vous contactera."}
         </p>
-        <button onClick={() => setSuccess(false)} className="btn-primary mt-6">
-          Nouvelle demande
-        </button>
+        <button onClick={() => { setSuccess(false); setMessage(''); setDescription(''); setMotivation('') }}
+          className="btn-primary mt-6">Nouvelle demande</button>
       </div>
     </div>
   )
@@ -158,12 +176,12 @@ export default function ContactUnifiePage() {
       <section className="py-12">
         <div className="max-w-5xl mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-
             <div className="lg:col-span-2">
+
               {/* Sélecteur */}
               <div className="grid grid-cols-3 gap-3 mb-8">
                 {TYPES.map(t => (
-                  <button key={t.value} type="button" onClick={() => setType(t.value)}
+                  <button key={t.value} type="button" onClick={() => { setType(t.value); setError('') }}
                     className={`p-4 rounded-xl border-2 text-left transition-all ${type === t.value ? 'border-vert bg-vert-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
                     <div className="text-xl mb-1">{t.label.split(' ')[0]}</div>
                     <div className={`text-xs font-semibold ${type === t.value ? 'text-vert' : 'text-gray-700'}`}>
@@ -173,6 +191,8 @@ export default function ContactUnifiePage() {
                   </button>
                 ))}
               </div>
+
+              {error && <div className="bg-rouge-50 border border-rouge-200 rounded-lg p-3 mb-4 text-sm text-rouge">⚠️ {error}</div>}
 
               <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-2xl border p-6">
 
@@ -188,119 +208,86 @@ export default function ContactUnifiePage() {
                 </div>
 
                 {/* CONTACT */}
-                {type === 'contact' && (
-                  <>
-                    <div><label className="form-label">Sujet *</label><input required className="form-input" value={sujet} onChange={e => setSujet(e.target.value)} /></div>
-                    <div><label className="form-label">Message *</label><textarea required rows={6} className="form-input" value={message} onChange={e => setMessage(e.target.value)} /></div>
-                  </>
-                )}
+                {type === 'contact' && <>
+                  <div><label className="form-label">Sujet *</label><input required className="form-input" placeholder="Ex: Demande d'information" value={sujet} onChange={e => setSujet(e.target.value)} /></div>
+                  <div><label className="form-label">Message *</label><textarea required rows={6} className="form-input" value={message} onChange={e => setMessage(e.target.value)} /></div>
+                </>}
 
                 {/* AIDE */}
-                {type === 'aide' && (
-                  <>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div><label className="form-label">Âge</label><input type="number" className="form-input" value={age} onChange={e => setAge(e.target.value)} /></div>
-                      <div><label className="form-label">Établissement</label><input className="form-input" value={institution} onChange={e => setInstitution(e.target.value)} /></div>
-                      <div><label className="form-label">Filière</label><input className="form-input" value={filiere} onChange={e => setFiliere(e.target.value)} /></div>
+                {type === 'aide' && <>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div><label className="form-label">Âge</label><input type="number" className="form-input" value={age} onChange={e => setAge(e.target.value)} /></div>
+                    <div><label className="form-label">Établissement</label><input className="form-input" value={institution} onChange={e => setInstitution(e.target.value)} /></div>
+                    <div><label className="form-label">Filière</label><input className="form-input" value={filiere} onChange={e => setFiliere(e.target.value)} /></div>
+                  </div>
+                  <div><label className="form-label">Situation</label><input className="form-input" placeholder="Ex: nouvel arrivant..." value={situation} onChange={e => setSituation(e.target.value)} /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="form-label">Type d&apos;aide *</label>
+                      <select required className="form-input" value={helpType} onChange={e => { setHelpType(e.target.value); setCarteId(null); setAttestationFac(null) }}>
+                        <option value="">Sélectionner</option>
+                        {HELP_TYPES.map(t => <option key={t}>{t}</option>)}
+                      </select>
                     </div>
-                    <div><label className="form-label">Situation</label><input className="form-input" placeholder="Ex: nouvel arrivant..." value={situation} onChange={e => setSituation(e.target.value)} /></div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="form-label">Type d&apos;aide *</label>
-                        <select required className="form-input" value={helpType} onChange={e => { setHelpType(e.target.value); setCarteId(null); setAttestationFac(null) }}>
-                          <option value="">Sélectionner</option>
-                          {HELP_TYPES.map(t => <option key={t}>{t}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="form-label">Urgence</label>
-                        <select className="form-input" value={urgence} onChange={e => setUrgence(e.target.value)}>
-                          <option value="low">Faible</option>
-                          <option value="medium">Moyenne</option>
-                          <option value="high">Élevée</option>
-                          <option value="critical">Urgente</option>
-                        </select>
-                      </div>
+                    <div>
+                      <label className="form-label">Urgence</label>
+                      <select className="form-input" value={urgence} onChange={e => setUrgence(e.target.value)}>
+                        <option value="low">Faible</option>
+                        <option value="medium">Moyenne</option>
+                        <option value="high">Élevée</option>
+                        <option value="critical">Urgente</option>
+                      </select>
                     </div>
-                    <div><label className="form-label">Décrivez votre besoin *</label><textarea required rows={4} className="form-input" value={description} onChange={e => setDescription(e.target.value)} /></div>
+                  </div>
+                  <div><label className="form-label">Décrivez votre besoin *</label><textarea required rows={4} className="form-input" value={description} onChange={e => setDescription(e.target.value)} /></div>
 
-                    {/* Documents uniquement pour attestation hébergement */}
-                    {helpType === "Attestation d'hébergement" && (
-                      <div className="bg-vert-50 border border-vert-200 rounded-xl p-4 space-y-3">
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-sm text-gray-900">📎 Documents obligatoires</p>
-                          <span className="text-xs bg-rouge text-white px-2 py-0.5 rounded-full">Requis</span>
-                        </div>
-                        <p className="text-xs text-gray-500">Pour l&apos;attestation d&apos;hébergement, joignez votre carte d&apos;identité et votre attestation d&apos;inscription à Bordeaux.</p>
-
-                        {/* Carte identité */}
-                        <div>
-                          <label className="form-label">Carte d&apos;identité *</label>
-                          <div className={`border-2 border-dashed rounded-xl p-3 text-center cursor-pointer transition-colors ${carteId ? 'border-vert bg-white' : 'border-gray-300 hover:border-vert'}`}
-                            onClick={() => document.getElementById('carte-id-input')?.click()}>
-                            <input id="carte-id-input" type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden"
-                              onChange={e => setCarteId(e.target.files?.[0] || null)} />
-                            {carteId ? (
-                              <p className="text-sm text-vert font-medium">✅ {carteId.name}</p>
-                            ) : (
-                              <div>
-                                <Upload className="w-6 h-6 text-gray-400 mx-auto mb-1" />
-                                <p className="text-sm text-gray-400">Cliquez pour uploader (PDF, JPG, PNG)</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Attestation fac */}
-                        <div>
-                          <label className="form-label">Attestation d&apos;inscription Bordeaux *</label>
-                          <div className={`border-2 border-dashed rounded-xl p-3 text-center cursor-pointer transition-colors ${attestationFac ? 'border-vert bg-white' : 'border-gray-300 hover:border-vert'}`}
-                            onClick={() => document.getElementById('attestation-fac-input')?.click()}>
-                            <input id="attestation-fac-input" type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden"
-                              onChange={e => setAttestationFac(e.target.files?.[0] || null)} />
-                            {attestationFac ? (
-                              <p className="text-sm text-vert font-medium">✅ {attestationFac.name}</p>
-                            ) : (
-                              <div>
-                                <Upload className="w-6 h-6 text-gray-400 mx-auto mb-1" />
-                                <p className="text-sm text-gray-400">Cliquez pour uploader (PDF, JPG, PNG)</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {uploadProgress && (
-                          <div className="flex items-center gap-2 text-sm text-vert">
-                            <Loader2 className="w-4 h-4 animate-spin" />{uploadProgress}
-                          </div>
-                        )}
+                  {helpType === "Attestation d'hébergement" && (
+                    <div className="bg-vert-50 border border-vert-200 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-sm">📎 Documents obligatoires</p>
+                        <span className="text-xs bg-rouge text-white px-2 py-0.5 rounded-full">Requis</span>
                       </div>
-                    )}
-                  </>
-                )}
+                      <p className="text-xs text-gray-500">Joignez votre carte d&apos;identité et votre attestation d&apos;inscription à Bordeaux.</p>
+                      <div>
+                        <label className="form-label">Carte d&apos;identité *</label>
+                        <div className={`border-2 border-dashed rounded-xl p-3 text-center cursor-pointer ${carteId ? 'border-vert bg-white' : 'border-gray-300 hover:border-vert'}`}
+                          onClick={() => document.getElementById('carte-id')?.click()}>
+                          <input id="carte-id" type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={e => setCarteId(e.target.files?.[0] || null)} />
+                          {carteId ? <p className="text-sm text-vert font-medium">✅ {carteId.name}</p> : <div><Upload className="w-5 h-5 text-gray-400 mx-auto mb-1" /><p className="text-sm text-gray-400">PDF, JPG, PNG</p></div>}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="form-label">Attestation d&apos;inscription Bordeaux *</label>
+                        <div className={`border-2 border-dashed rounded-xl p-3 text-center cursor-pointer ${attestationFac ? 'border-vert bg-white' : 'border-gray-300 hover:border-vert'}`}
+                          onClick={() => document.getElementById('attestation-fac')?.click()}>
+                          <input id="attestation-fac" type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={e => setAttestationFac(e.target.files?.[0] || null)} />
+                          {attestationFac ? <p className="text-sm text-vert font-medium">✅ {attestationFac.name}</p> : <div><Upload className="w-5 h-5 text-gray-400 mx-auto mb-1" /><p className="text-sm text-gray-400">PDF, JPG, PNG</p></div>}
+                        </div>
+                      </div>
+                      {uploadProgress && <div className="flex items-center gap-2 text-sm text-vert"><Loader2 className="w-4 h-4 animate-spin" />{uploadProgress}</div>}
+                    </div>
+                  )}
+                </>}
 
                 {/* BÉNÉVOLE */}
-                {type === 'benevole' && (
-                  <>
-                    <div>
-                      <label className="form-label">Domaines *</label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
-                        {DOMAINES.map(d => (
-                          <button key={d} type="button" onClick={() => toggleDomaine(d)}
-                            className={`text-left text-xs p-2.5 rounded-lg border-2 transition-all ${domaines.includes(d) ? 'border-vert bg-vert-50 text-vert font-semibold' : 'border-gray-200 text-gray-600'}`}>
-                            {domaines.includes(d) ? '✅ ' : '○ '}{d}
-                          </button>
-                        ))}
-                      </div>
+                {type === 'benevole' && <>
+                  <div>
+                    <label className="form-label">Domaines *</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                      {DOMAINES.map(d => (
+                        <button key={d} type="button" onClick={() => toggleDomaine(d)}
+                          className={`text-left text-xs p-2.5 rounded-lg border-2 transition-all ${domaines.includes(d) ? 'border-vert bg-vert-50 text-vert font-semibold' : 'border-gray-200 text-gray-600'}`}>
+                          {domaines.includes(d) ? '✅ ' : '○ '}{d}
+                        </button>
+                      ))}
                     </div>
-                    <div><label className="form-label">Disponibilités</label><input className="form-input" placeholder="Ex: Week-ends, soirs..." value={disponibilites} onChange={e => setDisponibilites(e.target.value)} /></div>
-                    <div><label className="form-label">Expérience associative</label><textarea rows={2} className="form-input" value={experience} onChange={e => setExperience(e.target.value)} /></div>
-                    <div><label className="form-label">Motivation *</label><textarea required rows={4} className="form-input" placeholder="Pourquoi souhaitez-vous rejoindre l'AEAB ?" value={motivation} onChange={e => setMotivation(e.target.value)} /></div>
-                  </>
-                )}
+                  </div>
+                  <div><label className="form-label">Disponibilités</label><input className="form-input" placeholder="Ex: Week-ends, soirs..." value={disponibilites} onChange={e => setDisponibilites(e.target.value)} /></div>
+                  <div><label className="form-label">Expérience associative</label><textarea rows={2} className="form-input" value={experience} onChange={e => setExperience(e.target.value)} /></div>
+                  <div><label className="form-label">Motivation *</label><textarea required rows={4} className="form-input" placeholder="Pourquoi souhaitez-vous rejoindre l'AEAB ?" value={motivation} onChange={e => setMotivation(e.target.value)} /></div>
+                </>}
 
-                <button type="submit"
-                  disabled={loading || (type === 'benevole' && domaines.length === 0)}
+                <button type="submit" disabled={loading || (type === 'benevole' && domaines.length === 0)}
                   className={`w-full flex items-center justify-center gap-2 ${type === 'benevole' ? 'btn-rouge' : 'btn-primary'}`}>
                   {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Envoi...</> : (
                     type === 'contact' ? <><MessageCircle className="w-5 h-5" /> Envoyer le message</> :
