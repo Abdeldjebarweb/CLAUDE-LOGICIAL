@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Plane, Eye, X, CheckCircle, XCircle, Phone, Mail, Package, Calendar, MapPin } from 'lucide-react'
+import { Plane, Eye, X, CheckCircle, XCircle, Phone, Mail, Package, Calendar, MapPin, EyeOff } from 'lucide-react'
 
 const sC: Record<string, string> = {
   en_attente: 'bg-yellow-50 text-yellow-700',
@@ -45,6 +45,13 @@ export default function AdminTransporteurs() {
     const visible = statut === 'valide'
     await supabase.from('transporteurs').update({ statut, visible }).eq('id', id)
     if (sel?.id === id) setSel((prev: any) => ({ ...prev, statut, visible }))
+    load()
+  }
+
+  // Masquer/afficher les coordonnées du transporteur
+  const toggleCoordonnees = async (id: string, masquer: boolean) => {
+    await supabase.from('transporteurs').update({ coordonnees_masquees: masquer }).eq('id', id)
+    if (sel?.id === id) setSel((prev: any) => ({ ...prev, coordonnees_masquees: masquer }))
     load()
   }
 
@@ -96,15 +103,31 @@ export default function AdminTransporteurs() {
             </div>
 
             <div className="space-y-4 text-sm">
-              {/* Coordonnées */}
+              {/* Coordonnées avec option masquage */}
               <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-                <a href={`mailto:${sel.email}`} className="flex items-center gap-2 text-vert hover:underline">
-                  <Mail className="w-4 h-4" /> {sel.email}
-                </a>
-                {sel.telephone && (
-                  <a href={`tel:${sel.telephone}`} className="flex items-center gap-2 text-vert hover:underline">
-                    <Phone className="w-4 h-4" /> {sel.telephone}
-                  </a>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-semibold text-gray-700">Coordonnées</p>
+                  <button
+                    onClick={() => toggleCoordonnees(sel.id, !sel.coordonnees_masquees)}
+                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg font-semibold transition-all ${sel.coordonnees_masquees ? 'bg-rouge-50 text-rouge border border-rouge-200' : 'bg-vert-50 text-vert border border-vert-200'}`}>
+                    {sel.coordonnees_masquees ? <><Eye className="w-3 h-3" /> Afficher les contacts</> : <><EyeOff className="w-3 h-3" /> Masquer les contacts</>}
+                  </button>
+                </div>
+                {sel.coordonnees_masquees ? (
+                  <p className="text-xs text-rouge bg-rouge-50 p-2 rounded-lg">
+                    🔒 Coordonnées masquées — le transporteur ne souhaite pas les afficher publiquement.
+                  </p>
+                ) : (
+                  <>
+                    <a href={`mailto:${sel.email}`} className="flex items-center gap-2 text-vert hover:underline">
+                      <Mail className="w-4 h-4" /> {sel.email}
+                    </a>
+                    {sel.telephone && (
+                      <a href={`tel:${sel.telephone}`} className="flex items-center gap-2 text-vert hover:underline">
+                        <Phone className="w-4 h-4" /> {sel.telephone}
+                      </a>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -116,12 +139,12 @@ export default function AdminTransporteurs() {
                   <MapPin className="w-4 h-4 text-vert" /> {sel.arrivee}
                   {sel.aller_retour && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">↔ A/R</span>}
                 </div>
-                <p className="text-gray-600 flex items-center gap-1.5 text-sm">
+                <p className="text-gray-600 text-sm flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
-                  Départ : {new Date(sel.date_voyage).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                  {new Date(sel.date_voyage).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                 </p>
                 {sel.aller_retour && sel.date_retour && (
-                  <p className="text-gray-600 text-sm mt-1">Retour : {new Date(sel.date_retour).toLocaleDateString('fr-FR')}</p>
+                  <p className="text-gray-500 text-xs mt-1">Retour : {new Date(sel.date_retour).toLocaleDateString('fr-FR')}</p>
                 )}
               </div>
 
@@ -135,31 +158,20 @@ export default function AdminTransporteurs() {
                 </div>
               </div>
 
-              {sel.poids_max && (
-                <p><Package className="w-3.5 h-3.5 inline mr-1" /> Poids max : <strong>{sel.poids_max} kg</strong></p>
-              )}
-
-              {sel.commentaire && (
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <p className="font-semibold mb-1">Commentaire :</p>
-                  <p className="italic text-gray-600">{sel.commentaire}</p>
-                </div>
-              )}
-
-              <p className="text-xs text-gray-400">
-                Soumis le {new Date(sel.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-              </p>
+              {sel.poids_max && <p><Package className="w-3.5 h-3.5 inline mr-1" /> Max : <strong>{sel.poids_max} kg</strong></p>}
+              {sel.commentaire && <p className="bg-gray-50 p-3 rounded-lg italic text-gray-600">{sel.commentaire}</p>}
+              <p className="text-xs text-gray-400">Soumis le {new Date(sel.created_at).toLocaleDateString('fr-FR')}</p>
             </div>
 
             {/* Actions */}
             {sel.statut === 'en_attente' && (
               <div className="flex gap-3 mt-6">
                 <button onClick={() => updateStatut(sel.id, 'refuse')}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-rouge-50 text-rouge font-semibold hover:bg-rouge-100 border border-rouge-200 transition-colors">
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-rouge-50 text-rouge font-semibold hover:bg-rouge-100 border border-rouge-200">
                   <XCircle className="w-5 h-5" /> Refuser
                 </button>
                 <button onClick={() => updateStatut(sel.id, 'valide')}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-vert text-white font-semibold hover:bg-vert-700 transition-colors">
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-vert text-white font-semibold hover:bg-vert-700">
                   <CheckCircle className="w-5 h-5" /> Valider & Publier
                 </button>
               </div>
@@ -167,11 +179,11 @@ export default function AdminTransporteurs() {
             {sel.statut === 'valide' && (
               <div className="flex gap-3 mt-6">
                 <button onClick={() => updateStatut(sel.id, 'termine')}
-                  className="flex-1 py-2.5 rounded-xl bg-gray-100 text-gray-600 font-semibold hover:bg-gray-200 text-sm">
-                  Marquer comme terminé
+                  className="flex-1 py-2.5 rounded-xl bg-gray-100 text-gray-600 font-semibold text-sm">
+                  Marquer terminé
                 </button>
                 <button onClick={() => updateStatut(sel.id, 'refuse')}
-                  className="flex-1 py-2.5 rounded-xl bg-rouge-50 text-rouge font-semibold hover:bg-rouge-100 text-sm border border-rouge-200">
+                  className="flex-1 py-2.5 rounded-xl bg-rouge-50 text-rouge font-semibold text-sm border border-rouge-200">
                   Dépublier
                 </button>
               </div>
@@ -187,8 +199,8 @@ export default function AdminTransporteurs() {
             <tr>
               <th className="px-4 py-3 text-left font-semibold">Nom</th>
               <th className="px-4 py-3 text-left font-semibold hidden md:table-cell">Trajet</th>
-              <th className="px-4 py-3 text-left font-semibold hidden lg:table-cell">Date départ</th>
-              <th className="px-4 py-3 text-left font-semibold hidden lg:table-cell">Accepte</th>
+              <th className="px-4 py-3 text-left font-semibold hidden lg:table-cell">Date</th>
+              <th className="px-4 py-3 text-left font-semibold hidden lg:table-cell">Contacts</th>
               <th className="px-4 py-3 text-left font-semibold">Statut</th>
               <th className="px-4 py-3 text-right font-semibold">Actions</th>
             </tr>
@@ -197,25 +209,18 @@ export default function AdminTransporteurs() {
             {filtered.map(t => (
               <tr key={t.id} className={`hover:bg-gray-50 ${t.statut === 'en_attente' ? 'bg-yellow-50/30' : ''}`}>
                 <td className="px-4 py-3 font-medium">{t.prenom} {t.nom}</td>
-                <td className="px-4 py-3 text-gray-600 hidden md:table-cell">
-                  <span className="flex items-center gap-1">
-                    <span className="text-rouge">●</span> {t.depart} → <span className="text-vert">●</span> {t.arrivee}
-                  </span>
+                <td className="px-4 py-3 text-gray-600 hidden md:table-cell text-xs">
+                  {t.depart} → {t.arrivee}
                 </td>
-                <td className="px-4 py-3 text-gray-500 hidden lg:table-cell text-xs">
+                <td className="px-4 py-3 text-gray-500 text-xs hidden lg:table-cell">
                   {new Date(t.date_voyage).toLocaleDateString('fr-FR')}
                 </td>
                 <td className="px-4 py-3 hidden lg:table-cell">
-                  <div className="flex flex-wrap gap-1">
-                    {(t.types_acceptes || []).slice(0, 2).map((type: string) => (
-                      <span key={type} className="text-xs bg-vert-50 text-vert px-1.5 py-0.5 rounded">
-                        {TYPES_LABELS[type]?.split(' ')[0]}
-                      </span>
-                    ))}
-                    {(t.types_acceptes || []).length > 2 && (
-                      <span className="text-xs text-gray-400">+{t.types_acceptes.length - 2}</span>
-                    )}
-                  </div>
+                  {t.coordonnees_masquees ? (
+                    <span className="text-xs text-rouge flex items-center gap-1"><EyeOff className="w-3 h-3" /> Masqués</span>
+                  ) : (
+                    <span className="text-xs text-vert flex items-center gap-1"><Eye className="w-3 h-3" /> Visibles</span>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${sC[t.statut] || ''}`}>{sL[t.statut]}</span>
@@ -232,6 +237,11 @@ export default function AdminTransporteurs() {
                         </button>
                       </>
                     )}
+                    <button onClick={() => toggleCoordonnees(t.id, !t.coordonnees_masquees)}
+                      className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100"
+                      title={t.coordonnees_masquees ? 'Afficher contacts' : 'Masquer contacts'}>
+                      {t.coordonnees_masquees ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </button>
                     <button onClick={() => setSel(t)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100" title="Détails">
                       <Eye className="w-4 h-4" />
                     </button>
@@ -242,7 +252,7 @@ export default function AdminTransporteurs() {
             {filtered.length === 0 && (
               <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">
                 <Plane className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                Aucune annonce {filter !== 'all' ? `avec ce statut` : ''}
+                Aucune annonce
               </td></tr>
             )}
           </tbody>
