@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Eye, X, CheckCircle, XCircle, Mail, Phone, Search } from 'lucide-react'
+import { Eye, X, CheckCircle, XCircle, Mail, Phone, Search, Trash2, CheckSquare, Square } from 'lucide-react'
 
 const sC: Record<string, string> = {
   pending: 'bg-yellow-50 text-yellow-700',
@@ -20,6 +20,7 @@ export default function AdminAdhesions() {
   const [sel, setSel] = useState<any>(null)
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
+  const [selected, setSelected] = useState<string[]>([])
 
   const load = async () => {
     const { data } = await supabase.from('memberships').select('*').order('created_at', { ascending: false })
@@ -40,6 +41,19 @@ export default function AdminAdhesions() {
   const updateStatus = async (id: string, status: string) => {
     await supabase.from('memberships').update({ status }).eq('id', id)
     if (sel?.id === id) setSel((prev: any) => ({ ...prev, status }))
+    load()
+  }
+
+  const toggleSelect = (id: string) =>
+    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+
+  const selectAll = () =>
+    setSelected(selected.length === filtered.length ? [] : filtered.map(i => i.id))
+
+  const deleteSelected = async () => {
+    if (!confirm(`Supprimer ${selected.length} adhésion(s) ?`)) return
+    await Promise.all(selected.map(id => supabase.from('memberships').delete().eq('id', id)))
+    setSelected([])
     load()
   }
 
@@ -160,11 +174,26 @@ export default function AdminAdhesions() {
         </div>
       )}
 
+      {/* Bulk actions */}
+      {selected.length > 0 && (
+        <div className="flex items-center gap-3 bg-rouge-50 border border-rouge-200 rounded-xl p-3 mb-3">
+          <span className="text-sm font-semibold text-rouge">{selected.length} sélectionné(s)</span>
+          <button onClick={deleteSelected} className="flex items-center gap-1.5 text-xs bg-rouge text-white px-3 py-1.5 rounded-lg font-semibold">
+            <Trash2 className="w-3.5 h-3.5" /> Supprimer
+          </button>
+          <button onClick={() => setSelected([])} className="text-xs text-gray-500 hover:underline ml-auto">Annuler</button>
+        </div>
+      )}
       {/* Tableau */}
       <div className="bg-white rounded-xl border overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
             <tr>
+              <th className="px-4 py-3 w-8">
+                <button onClick={selectAll} className="text-gray-400 hover:text-vert">
+                  {selected.length === filtered.length && filtered.length > 0 ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+                </button>
+              </th>
               <th className="px-4 py-3 text-left font-semibold">Nom</th>
               <th className="px-4 py-3 text-left font-semibold hidden md:table-cell">Email</th>
               <th className="px-4 py-3 text-left font-semibold hidden lg:table-cell">Établissement</th>
@@ -176,9 +205,14 @@ export default function AdminAdhesions() {
           </thead>
           <tbody className="divide-y">
             {filtered.map(m => (
-              <tr key={m.id} className={`hover:bg-gray-50 cursor-pointer ${m.status === 'pending' ? 'bg-yellow-50/30' : ''}`}
-                onClick={() => setSel(m)}>
-                <td className="px-4 py-3 font-medium">{m.first_name} {m.last_name}</td>
+              <tr key={m.id} className={`hover:bg-gray-50 ${m.status === 'pending' ? 'bg-yellow-50/30' : ''}`}>
+                <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                  <button onClick={() => toggleSelect(m.id)} className="text-gray-400 hover:text-vert">
+                    {selected.includes(m.id) ? <CheckSquare className="w-4 h-4 text-vert" /> : <Square className="w-4 h-4" />}
+                  </button>
+                </td>
+                <td className="px-4 py-3 font-medium cursor-pointer" onClick={() => setSel(m)}>{m.first_name} {m.last_name}</td>
+
                 <td className="px-4 py-3 text-gray-500 hidden md:table-cell">{m.email}</td>
                 <td className="px-4 py-3 text-gray-500 hidden lg:table-cell">{m.institution}</td>
                 <td className="px-4 py-3 text-gray-500 hidden lg:table-cell">{m.field}</td>
