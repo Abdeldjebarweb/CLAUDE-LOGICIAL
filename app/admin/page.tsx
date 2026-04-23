@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { UserPlus, HelpCircle, Heart, Mail, Calendar, FileText, AlertTriangle, CheckCircle } from 'lucide-react'
+import { UserPlus, HelpCircle, Mail, Calendar, FileText, AlertTriangle } from 'lucide-react'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null)
@@ -11,12 +11,11 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     async function load() {
-      // Une seule requête par table, seulement ce qui est nécessaire
       const [m, h, c, ev, ar] = await Promise.all([
-        supabase.from('memberships').select('id, status', { count: 'exact' }).limit(100),
-        supabase.from('help_requests').select('id, status, urgency', { count: 'exact' }).limit(100),
-        supabase.from('contacts').select('id, is_read', { count: 'exact' }).limit(100),
-        supabase.from('events').select('id, title, date, location').eq('status', 'upcoming').order('date').limit(5),
+        supabase.from('memberships').select('id, status'),
+        supabase.from('help_requests').select('id, status, urgency'),
+        supabase.from('contacts').select('id, statut, is_read'),
+        supabase.from('events').select('id, title, date').eq('status', 'upcoming').order('date').limit(5),
         supabase.from('articles').select('id, title, status').order('created_at', { ascending: false }).limit(5),
       ])
 
@@ -28,8 +27,9 @@ export default function AdminDashboard() {
         totalMemberships: memberships.length,
         pendingMemberships: memberships.filter(x => x.status === 'pending').length,
         totalHelp: helpReqs.length,
+        newHelp: helpReqs.filter(x => x.status === 'new').length,
         criticalHelp: helpReqs.filter(x => x.urgency === 'critical' && x.status === 'new').length,
-        unreadContacts: contacts.filter(x => !x.is_read).length,
+        unreadContacts: contacts.filter(x => x.statut === 'nouveau' || x.is_read === false).length,
         events: ev.data || [],
         articles: ar.data || [],
       })
@@ -46,45 +46,43 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-
-      {/* Alertes */}
-      {(stats.criticalHelp > 0 || stats.pendingMemberships > 0 || stats.unreadContacts > 0) && (
-        <div className="space-y-2">
-          {stats.criticalHelp > 0 && (
-            <div className="bg-rouge-50 border border-rouge-200 rounded-xl p-4 flex items-center gap-3">
-              <AlertTriangle className="w-5 h-5 text-rouge flex-shrink-0" />
-              <p className="text-sm font-semibold text-rouge flex-1">{stats.criticalHelp} demande(s) URGENTE(S)</p>
-              <Link href="/admin/demandes" className="text-xs bg-rouge text-white px-3 py-1.5 rounded-lg font-semibold">Traiter →</Link>
-            </div>
-          )}
-          {stats.pendingMemberships > 0 && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center gap-3">
-              <UserPlus className="w-5 h-5 text-yellow-600 flex-shrink-0" />
-              <p className="text-sm font-semibold text-yellow-700 flex-1">{stats.pendingMemberships} adhésion(s) en attente</p>
-              <Link href="/admin/adhesions" className="text-xs bg-yellow-500 text-white px-3 py-1.5 rounded-lg font-semibold">Valider →</Link>
-            </div>
-          )}
-          {stats.unreadContacts > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center gap-3">
-              <Mail className="w-5 h-5 text-blue-600 flex-shrink-0" />
-              <p className="text-sm font-semibold text-blue-700 flex-1">{stats.unreadContacts} message(s) non lu(s)</p>
-              <Link href="/admin/messages" className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg font-semibold">Lire →</Link>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Alertes urgentes */}
+      <div className="space-y-2">
+        {stats.criticalHelp > 0 && (
+          <div className="bg-rouge-50 border border-rouge-200 rounded-xl p-4 flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-rouge flex-shrink-0" />
+            <p className="text-sm font-semibold text-rouge flex-1">{stats.criticalHelp} demande(s) URGENTE(S) !</p>
+            <Link href="/admin/demandes" className="text-xs bg-rouge text-white px-3 py-1.5 rounded-lg">Traiter →</Link>
+          </div>
+        )}
+        {stats.pendingMemberships > 0 && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center gap-3">
+            <UserPlus className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+            <p className="text-sm font-semibold text-yellow-700 flex-1">{stats.pendingMemberships} adhésion(s) en attente</p>
+            <Link href="/admin/adhesions" className="text-xs bg-yellow-500 text-white px-3 py-1.5 rounded-lg">Valider →</Link>
+          </div>
+        )}
+        {stats.unreadContacts > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center gap-3">
+            <Mail className="w-5 h-5 text-blue-600 flex-shrink-0" />
+            <p className="text-sm font-semibold text-blue-700 flex-1">{stats.unreadContacts} message(s) non lu(s)</p>
+            <Link href="/admin/messages" className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg">Lire →</Link>
+          </div>
+        )}
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: UserPlus, label: 'Adhésions', value: stats.totalMemberships, color: 'bg-vert', href: '/admin/adhesions' },
+          { icon: UserPlus, label: 'Total adhésions', value: stats.totalMemberships, color: 'bg-vert', href: '/admin/adhesions' },
           { icon: HelpCircle, label: "Demandes d'aide", value: stats.totalHelp, color: 'bg-rouge', href: '/admin/demandes' },
-          { icon: Mail, label: 'Messages non lus', value: stats.unreadContacts, color: 'bg-vert-700', href: '/admin/messages' },
-          { icon: Heart, label: 'En attente validation', value: stats.pendingMemberships, color: 'bg-yellow-500', href: '/admin/adhesions' },
+          { icon: Mail, label: 'Messages non lus', value: stats.unreadContacts, color: 'bg-blue-500', href: '/admin/messages' },
+          { icon: AlertTriangle, label: 'En attente valid.', value: stats.pendingMemberships, color: 'bg-yellow-500', href: '/admin/adhesions' },
         ].map(c => (
-          <Link key={c.label} href={c.href} className="bg-white rounded-xl border p-5 hover:-translate-y-0.5 transition-transform no-underline group">
+          <Link key={c.label} href={c.href}
+            className="bg-white rounded-xl border p-5 hover:-translate-y-0.5 transition-transform no-underline">
             <div className="flex items-center gap-3">
-              <div className={`${c.color} w-10 h-10 rounded-lg flex items-center justify-center text-white`}>
+              <div className={`${c.color} w-10 h-10 rounded-lg flex items-center justify-center text-white flex-shrink-0`}>
                 <c.icon className="w-5 h-5" />
               </div>
               <div>
@@ -147,7 +145,7 @@ export default function AdminDashboard() {
                 <li key={a.id} className="flex items-center justify-between text-sm gap-3">
                   <span className="text-gray-700 truncate">{a.title}</span>
                   <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${a.status === 'published' ? 'bg-vert-50 text-vert' : 'bg-gray-100 text-gray-500'}`}>
-                    {a.status === 'published' ? '✅ Publié' : '📝 Brouillon'}
+                    {a.status === 'published' ? '✅' : '📝'}
                   </span>
                 </li>
               ))}
