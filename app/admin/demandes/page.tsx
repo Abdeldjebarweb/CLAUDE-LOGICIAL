@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Eye, X, Mail, Phone, FileText, ExternalLink } from 'lucide-react'
+import { Eye, X, Mail, Phone, FileText, ExternalLink, Trash2, CheckSquare, Square } from 'lucide-react'
 
 const sC: Record<string, string> = {
   new: 'bg-rouge-50 text-rouge',
@@ -30,6 +30,7 @@ export default function AdminDemandes() {
   const [items, setItems] = useState<any[]>([])
   const [sel, setSel] = useState<any>(null)
   const [filter, setFilter] = useState('all')
+  const [selected, setSelected] = useState<string[]>([])
 
   const load = async () => {
     const { data } = await supabase
@@ -49,6 +50,19 @@ export default function AdminDemandes() {
   const upd = async (id: string, status: string) => {
     await supabase.from('help_requests').update({ status }).eq('id', id)
     if (sel?.id === id) setSel((p: any) => ({ ...p, status }))
+    load()
+  }
+
+  const toggleSelect = (id: string) =>
+    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+
+  const selectAll = () =>
+    setSelected(selected.length === filtered.length ? [] : filtered.map(i => i.id))
+
+  const deleteSelected = async () => {
+    if (!confirm(`Supprimer ${selected.length} demande(s) ?`)) return
+    await Promise.all(selected.map(id => supabase.from('help_requests').delete().eq('id', id)))
+    setSelected([])
     load()
   }
 
@@ -174,10 +188,24 @@ export default function AdminDemandes() {
       )}
 
       {/* Tableau */}
+      {selected.length > 0 && (
+        <div className="flex items-center gap-3 bg-rouge-50 border border-rouge-200 rounded-xl p-3 mb-3">
+          <span className="text-sm font-semibold text-rouge">{selected.length} sélectionné(s)</span>
+          <button onClick={deleteSelected} className="flex items-center gap-1.5 text-xs bg-rouge text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-rouge-700">
+            <Trash2 className="w-3.5 h-3.5" /> Supprimer
+          </button>
+          <button onClick={() => setSelected([])} className="text-xs text-gray-500 hover:underline ml-auto">Annuler</button>
+        </div>
+      )}
       <div className="bg-white rounded-xl border overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
             <tr>
+              <th className="px-4 py-3 w-8">
+                <button onClick={selectAll} className="text-gray-400 hover:text-vert">
+                  {selected.length === filtered.length && filtered.length > 0 ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+                </button>
+              </th>
               <th className="px-4 py-3 text-left font-semibold">Nom</th>
               <th className="px-4 py-3 text-left font-semibold hidden md:table-cell">Type</th>
               <th className="px-4 py-3 text-left font-semibold">Urgence</th>
@@ -188,9 +216,14 @@ export default function AdminDemandes() {
           </thead>
           <tbody className="divide-y">
             {filtered.map(r => (
-              <tr key={r.id} className={`hover:bg-gray-50 cursor-pointer ${r.status === 'new' ? 'bg-rouge-50/10' : ''}`}
-                onClick={() => setSel(r)}>
-                <td className="px-4 py-3 font-medium">{r.first_name} {r.last_name}</td>
+              <tr key={r.id} className={`hover:bg-gray-50 ${r.status === 'new' ? 'bg-rouge-50/10' : ''}`}>
+                <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                  <button onClick={() => toggleSelect(r.id)} className="text-gray-400 hover:text-vert">
+                    {selected.includes(r.id) ? <CheckSquare className="w-4 h-4 text-vert" /> : <Square className="w-4 h-4" />}
+                  </button>
+                </td>
+                <td className="px-4 py-3 font-medium cursor-pointer" onClick={() => setSel(r)}>{r.first_name} {r.last_name}</td>
+
                 <td className="px-4 py-3 text-gray-500 hidden md:table-cell text-xs">{r.help_type}</td>
                 <td className="px-4 py-3">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${urgenceC[r.urgency] || ''}`}>
