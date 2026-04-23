@@ -131,11 +131,11 @@ export default function AdminAdhesions() {
             {/* Actions */}
             {sel.status === 'pending' && (
               <div className="flex gap-3 mt-6">
-                <button onClick={() => updateStatut(sel.id, 'rejected')}
+                <button onClick={() => updateStatus(sel.id, 'rejected')}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-rouge-50 text-rouge font-semibold hover:bg-rouge-100 border border-rouge-200 transition-colors">
                   <XCircle className="w-5 h-5" /> Refuser
                 </button>
-                <button onClick={() => updateStatut(sel.id, 'approved')}
+                <button onClick={() => updateStatus(sel.id, 'approved')}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-vert text-white font-semibold hover:bg-vert-700 transition-colors">
                   <CheckCircle className="w-5 h-5" /> Accepter
                 </button>
@@ -146,7 +146,7 @@ export default function AdminAdhesions() {
                 <div className="flex-1 bg-vert-50 border border-vert-200 rounded-lg p-3 text-sm text-vert flex items-center gap-2">
                   <CheckCircle className="w-4 h-4" /> Adhésion acceptée
                 </div>
-                <button onClick={() => updateStatut(sel.id, 'rejected')}
+                <button onClick={() => updateStatus(sel.id, 'rejected')}
                   className="px-4 py-2 rounded-lg bg-rouge-50 text-rouge text-sm border border-rouge-200 hover:bg-rouge-100">
                   Annuler
                 </button>
@@ -212,7 +212,4 @@ export default function AdminAdhesions() {
     </div>
   )
 
-  function updateStatut(id: string, status: string) {
-    updateStatus(id, status)
-  }
 }
