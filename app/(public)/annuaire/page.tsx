@@ -12,8 +12,8 @@ export default function AnnuairePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem('aeab_membre')
-    if (saved) setIsLoggedIn(true)
+    supabase.auth.getSession().then(({ data: { session } }) => { if (session?.user) setIsLoggedIn(true) })
+    
 
     supabase.from('membre_accounts')
       .select('id, prenom, nom, etablissement, filiere, niveau, ville, bio, photo_url, statut_adhesion')
