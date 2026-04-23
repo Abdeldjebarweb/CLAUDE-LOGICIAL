@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Plus, Trash2, X, Vote, BarChart2 } from 'lucide-react'
 
@@ -13,13 +13,16 @@ export default function AdminVotes() {
     date_fin: '', resultats_publics: false
   })
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const { data } = await supabase
       .from('votes')
       .select('id, titre, description, options, actif, resultats_publics, date_fin, created_at')
       .order('created_at', { ascending: false })
-    // Load responses separately
-    const votesWithCounts = await Promise.all((data || []).map(async v => {
+
+    if (!data) return
+
+    // Charger les comptages séparément
+    const votesWithCounts = await Promise.all(data.map(async v => {
       const { count } = await supabase
         .from('vote_reponses')
         .select('*', { count: 'exact', head: true })
@@ -27,7 +30,7 @@ export default function AdminVotes() {
       return { ...v, nb_reponses: count || 0 }
     }))
     setVotes(votesWithCounts)
-  }
+  }, [])
 
   const loadResultats = async (vote: any) => {
     const { data } = await supabase
@@ -39,24 +42,24 @@ export default function AdminVotes() {
 
   useEffect(() => {
     load()
-    const interval = setInterval(load, 30000)
+    const interval = setInterval(load, 15000)
     return () => clearInterval(interval)
-  }, [])
+  }, [load])
 
-  const addOption = () => setForm({ ...form, options: [...form.options, ''] })
-  const removeOption = (i: number) => setForm({ ...form, options: form.options.filter((_, idx) => idx !== i) })
+  const addOption = () => setForm(f => ({ ...f, options: [...f.options, ''] }))
+  const removeOption = (i: number) => setForm(f => ({ ...f, options: f.options.filter((_, idx) => idx !== i) }))
   const setOption = (i: number, v: string) => {
     const opts = [...form.options]; opts[i] = v
-    setForm({ ...form, options: opts })
+    setForm(f => ({ ...f, options: opts }))
   }
 
   const handleCreate = async () => {
     const validOptions = form.options.filter(o => o.trim())
-    if (!form.titre || validOptions.length < 2) {
-      alert('Titre et au moins 2 options requis')
+    if (!form.titre.trim() || validOptions.length < 2) {
+      alert('Titre et au moins 2 options requises')
       return
     }
-    await supabase.from('votes').insert([{
+    const { error } = await supabase.from('votes').insert([{
       titre: form.titre,
       description: form.description,
       options: validOptions,
@@ -64,6 +67,7 @@ export default function AdminVotes() {
       resultats_publics: form.resultats_publics,
       actif: true,
     }])
+    if (error) { alert('Erreur: ' + error.message); return }
     setShowForm(false)
     setForm({ titre: '', description: '', options: ['', ''], date_fin: '', resultats_publics: false })
     load()
@@ -112,47 +116,42 @@ export default function AdminVotes() {
               <div>
                 <label className="form-label">Question *</label>
                 <input className="form-input" placeholder="Ex: Quel jour pour la prochaine réunion ?"
-                  value={form.titre} onChange={e => setForm({ ...form, titre: e.target.value })} />
+                  value={form.titre} onChange={e => setForm(f => ({ ...f, titre: e.target.value }))} />
               </div>
               <div>
                 <label className="form-label">Description (optionnel)</label>
                 <textarea rows={2} className="form-input" value={form.description}
-                  onChange={e => setForm({ ...form, description: e.target.value })} />
+                  onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
               </div>
               <div>
-                <label className="form-label">Options de réponse * (minimum 2)</label>
+                <label className="form-label">Options * (minimum 2)</label>
                 <div className="space-y-2">
                   {form.options.map((opt, i) => (
                     <div key={i} className="flex gap-2">
                       <input className="form-input flex-1" placeholder={`Option ${i + 1}`}
                         value={opt} onChange={e => setOption(i, e.target.value)} />
                       {form.options.length > 2 && (
-                        <button type="button" onClick={() => removeOption(i)}
-                          className="p-2 text-rouge hover:bg-rouge-50 rounded-lg">
+                        <button onClick={() => removeOption(i)} className="p-2 text-rouge hover:bg-rouge-50 rounded-lg">
                           <X className="w-4 h-4" />
                         </button>
                       )}
                     </div>
                   ))}
-                  <button type="button" onClick={addOption} className="text-sm text-vert hover:underline">
-                    + Ajouter une option
-                  </button>
+                  <button onClick={addOption} className="text-sm text-vert hover:underline">+ Ajouter une option</button>
                 </div>
               </div>
               <div>
                 <label className="form-label">Date limite (optionnel)</label>
                 <input type="datetime-local" className="form-input" value={form.date_fin}
-                  onChange={e => setForm({ ...form, date_fin: e.target.value })} />
+                  onChange={e => setForm(f => ({ ...f, date_fin: e.target.value }))} />
               </div>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={form.resultats_publics}
-                  onChange={e => setForm({ ...form, resultats_publics: e.target.checked })}
+                  onChange={e => setForm(f => ({ ...f, resultats_publics: e.target.checked }))}
                   className="w-4 h-4 accent-vert" />
-                <span className="text-sm text-gray-700">Résultats visibles avant de voter</span>
+                <span className="text-sm">Résultats visibles avant de voter</span>
               </label>
-              <button onClick={handleCreate} className="btn-primary w-full">
-                Créer le sondage
-              </button>
+              <button onClick={handleCreate} className="btn-primary w-full">Créer le sondage</button>
             </div>
           </div>
         </div>
@@ -175,16 +174,19 @@ export default function AdminVotes() {
                     <span className="text-gray-500">{r.count} ({r.pct}%)</span>
                   </div>
                   <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-vert rounded-full transition-all" style={{ width: `${r.pct}%` }} />
+                    <div className="h-full bg-vert rounded-full" style={{ width: `${r.pct}%` }} />
                   </div>
                 </div>
               ))}
             </div>
+            <button onClick={() => loadResultats(sel)} className="text-xs text-vert mt-4 hover:underline">
+              🔄 Actualiser les résultats
+            </button>
           </div>
         </div>
       )}
 
-      {/* Liste des sondages */}
+      {/* Liste */}
       {votes.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <Vote className="w-12 h-12 mx-auto mb-3 opacity-30" />
@@ -211,7 +213,7 @@ export default function AdminVotes() {
                 </p>
               </div>
               <div className="flex gap-2 flex-shrink-0">
-                <button onClick={() => loadResultats(v)} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200" title="Voir résultats">
+                <button onClick={() => loadResultats(v)} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200" title="Résultats">
                   <BarChart2 className="w-4 h-4 text-gray-600" />
                 </button>
                 <button onClick={() => toggleActif(v.id, v.actif)}
