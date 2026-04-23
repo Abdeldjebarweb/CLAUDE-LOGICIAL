@@ -25,7 +25,11 @@ export default function AdminAdhesions() {
     const { data } = await supabase.from('memberships').select('*').order('created_at', { ascending: false })
     setItems(data || [])
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    const interval = setInterval(load, 30000) // Rafraîchir toutes les 30s
+    return () => clearInterval(interval)
+  }, [])
 
   const filtered = items.filter(m => {
     const matchFilter = filter === 'all' || m.status === filter
