@@ -38,7 +38,11 @@ export default function AdminDemandes() {
       .order('created_at', { ascending: false })
     setItems(data || [])
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    const interval = setInterval(load, 30000) // Rafraîchir toutes les 30s
+    return () => clearInterval(interval)
+  }, [])
 
   const filtered = filter === 'all' ? items : items.filter(i => i.status === filter)
 
