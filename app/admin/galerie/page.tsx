@@ -51,7 +51,7 @@ export default function AdminGallery() {
   }
 
   // Grouper par album
-  const albums = [...new Set(items.map(i => i.album || 'Sans album'))]
+  const albums = Array.from(new Set(items.map(i => i.album || "Sans album")))
 
   return (
     <div>
