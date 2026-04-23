@@ -13,7 +13,11 @@ export default function AdminMessages() {
     const { data } = await supabase.from('contacts').select('*').order('created_at', { ascending: false })
     setItems(data || [])
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    const interval = setInterval(load, 30000) // Rafraîchir toutes les 30s
+    return () => clearInterval(interval)
+  }, [])
 
   const open = async (m: any) => {
     setSel(m)
