@@ -14,15 +14,15 @@ export default function AdminMessages() {
     const { data } = await supabase.from('contacts').select('*').order('created_at', { ascending: false })
     setItems(data || [])
   }
+
   useEffect(() => {
     load()
-    const interval = setInterval(load, 30000) // Rafraîchir toutes les 30s
+    const interval = setInterval(load, 30000)
     return () => clearInterval(interval)
   }, [])
 
   const open = async (m: any) => {
     setSel(m)
-    // Marquer comme lu (colonne statut ou is_read selon ce qui existe)
     if (m.statut === 'nouveau' || !m.is_read) {
       await supabase.from('contacts').update({ statut: 'lu', is_read: true }).eq('id', m.id)
       load()
@@ -36,6 +36,10 @@ export default function AdminMessages() {
     setSel(null)
   }
 
+  const filtered = filter === 'all' ? items
+    : filter === 'nouveau' ? items.filter(m => m.statut === 'nouveau' || !m.is_read)
+    : items.filter(m => m.statut === filter)
+
   const toggleSelect = (id: string) =>
     setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
 
@@ -48,10 +52,6 @@ export default function AdminMessages() {
     setSelected([])
     load()
   }
-
-  const filtered = filter === 'all' ? items
-    : filter === 'nouveau' ? items.filter(m => m.statut === 'nouveau' || !m.is_read)
-    : items.filter(m => m.statut === filter)
 
   const nonLus = items.filter(m => m.statut === 'nouveau' || !m.is_read).length
 
@@ -115,6 +115,19 @@ export default function AdminMessages() {
           <button onClick={() => setSelected([])} className="text-xs text-gray-500 hover:underline ml-auto">Annuler</button>
         </div>
       )}
+
+      {/* Header sélection tout */}
+      {filtered.length > 0 && (
+        <div className="flex items-center gap-2 mb-2 px-1">
+          <button onClick={selectAll} className="text-gray-400 hover:text-vert flex items-center gap-1.5 text-xs">
+            {selected.length === filtered.length && filtered.length > 0
+              ? <CheckSquare className="w-4 h-4 text-vert" />
+              : <Square className="w-4 h-4" />}
+            Tout sélectionner
+          </button>
+        </div>
+      )}
+
       {/* Liste messages */}
       <div className="space-y-2">
         {filtered.map(m => {
@@ -122,14 +135,15 @@ export default function AdminMessages() {
           return (
             <div key={m.id}
               className={`bg-white rounded-xl border p-4 hover:shadow-sm transition-shadow flex items-start gap-3 ${nonLu ? 'border-vert-200 bg-vert-50/20' : ''}`}>
-              <button onClick={(e) => { e.stopPropagation(); toggleSelect(m.id) }} className="text-gray-300 hover:text-vert flex-shrink-0 mt-0.5">
+              <button onClick={() => toggleSelect(m.id)} className="text-gray-300 hover:text-vert flex-shrink-0 mt-0.5">
                 {selected.includes(m.id) ? <CheckSquare className="w-4 h-4 text-vert" /> : <Square className="w-4 h-4" />}
               </button>
-              <div className="flex-shrink-0 cursor-pointer" onClick={() => open(m)}>
-              {nonLu
-                ? <Mail className="w-5 h-5 text-vert mt-0.5 flex-shrink-0" />
-                : <MailOpen className="w-5 h-5 text-gray-300 mt-0.5 flex-shrink-0" />}
-              <div className="flex-1 min-w-0">
+              <button onClick={() => open(m)} className="flex-shrink-0 mt-0.5">
+                {nonLu
+                  ? <Mail className="w-5 h-5 text-vert" />
+                  : <MailOpen className="w-5 h-5 text-gray-300" />}
+              </button>
+              <div className="flex-1 min-w-0 cursor-pointer" onClick={() => open(m)}>
                 <div className="flex items-center justify-between gap-2">
                   <span className={`text-sm truncate ${nonLu ? 'font-bold text-gray-900' : 'font-medium text-gray-600'}`}>
                     {m.nom || m.name || m.email}
