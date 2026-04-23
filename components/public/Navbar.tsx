@@ -28,6 +28,7 @@ const navLinks = [
       { href: '/votes',         label: '🗳️ Votes & sondages' },
     ],
   },
+  { href: '/galerie', label: 'Galerie' },
   { href: '/guide',   label: 'Guide' },
   { href: '/contact', label: 'Contact' },
 ]
