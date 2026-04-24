@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Users, UserPlus, Shield, ShieldOff, Mail, Loader2, CheckCircle, X, Trash2 } from 'lucide-react'
+import { UserCog, UserPlus, Shield, ShieldOff, Mail, Loader2, CheckCircle, X } from 'lucide-react'
 
 export default function AdminUtilisateurs() {
   const [users, setUsers] = useState<any[]>([])
@@ -35,18 +35,19 @@ export default function AdminUtilisateurs() {
     setInviting(true)
     setError('')
 
-    // Inviter via Supabase Auth
-    const { error: err } = await supabase.auth.admin?.inviteUserByEmail(inviteEmail) || {}
-
-    if (err) {
-      // Si pas d'accès admin, créer directement dans membre_accounts
-      const { error: err2 } = await supabase.from('membre_accounts').insert([{
-        email: inviteEmail,
-        role: 'admin',
-        statut_adhesion: 'membre_actif',
-        visible_annuaire: false,
-      }])
-      if (err2) { setError('Erreur: ' + err2.message); setInviting(false); return }
+    // Créer le compte admin dans membre_accounts
+    const { error: err2 } = await supabase.from('membre_accounts').insert([{
+      email: inviteEmail,
+      role: 'admin',
+      statut_adhesion: 'membre_actif',
+      visible_annuaire: false,
+      prenom: 'Admin',
+      nom: '',
+    }])
+    if (err2 && err2.code !== '23505') { 
+      setError('Erreur: ' + err2.message)
+      setInviting(false)
+      return 
     }
 
     setSuccess(`Invitation envoyée à ${inviteEmail}`)
