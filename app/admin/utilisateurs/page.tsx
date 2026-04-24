@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { UserCog, UserPlus, Shield, ShieldOff, Mail, Loader2, CheckCircle, X } from 'lucide-react'
+import { UserCog, UserPlus, Shield, ShieldOff, Mail, Loader2, CheckCircle, X, Users } from 'lucide-react'
 
 export default function AdminUtilisateurs() {
   const [users, setUsers] = useState<any[]>([])
