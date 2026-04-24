@@ -7,7 +7,7 @@ import Link from 'next/link'
 import {
   LayoutDashboard, FileText, Calendar, Users, Handshake, Image,
   UserPlus, HelpCircle, Heart, Mail, Settings, LogOut, Menu, X,
-  Vote, Bell, Newspaper, Car, Plane, Shield
+  Vote, Bell, Newspaper, Car, Plane, Shield, Users2
 } from 'lucide-react'
 
 const links = [
@@ -25,6 +25,7 @@ const links = [
   { href: '/admin/transporteurs', label: 'Transporteurs', icon: Plane },
   { href: '/admin/votes', label: 'Votes & Sondages', icon: Vote },
   { href: '/admin/benevoles', label: 'Bénévoles', icon: Bell },
+  { href: '/admin/utilisateurs', label: 'Utilisateurs', icon: Users2 },
   { href: '/admin/parametres', label: 'Paramètres', icon: Settings },
 ]
 
