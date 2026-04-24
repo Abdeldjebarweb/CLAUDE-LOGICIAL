@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { Menu, X, ChevronDown } from 'lucide-react'
 
 const navLinks = [
@@ -10,10 +9,9 @@ const navLinks = [
   {
     label: 'Association',
     children: [
-      { href: '/a-propos',  label: 'À propos' },
-      { href: '/mission',   label: 'Notre mission' },
-      { href: '/equipe',    label: 'Équipe & bénévoles' },
-      { href: '/benevole',  label: '❤ Devenir bénévole' },
+      { href: '/a-propos', label: 'À propos' },
+      { href: '/mission', label: 'Notre mission' },
+      { href: '/equipe', label: 'Équipe & bénévoles' },
     ],
   },
   { href: '/evenements', label: 'Événements' },
@@ -21,102 +19,74 @@ const navLinks = [
   {
     label: 'Communauté',
     children: [
-      { href: '/membre',        label: '👤 Espace membre' },
-      { href: '/annuaire',      label: '📋 Annuaire' },
-      { href: '/covoiturage',   label: '🚗 Covoiturage' },
+      { href: '/membre', label: '👤 Espace membre' },
+      { href: '/annuaire', label: '📋 Annuaire' },
+      { href: '/covoiturage', label: '🚗 Covoiturage' },
       { href: '/transporteurs', label: '✈️ Transporteurs' },
-      { href: '/votes',         label: '🗳️ Votes & sondages' },
+      { href: '/votes', label: '🗳️ Votes & sondages' },
     ],
   },
   { href: '/galerie', label: 'Galerie' },
-  { href: '/guide',   label: 'Guide' },
+  { href: '/guide', label: 'Guide' },
   { href: '/contact', label: 'Contact' },
 ]
 
-// Drapeau algérien SVG
-function DrapeauAlgerie({ size = 40 }: { size?: number }) {
+// Drapeau algérien SVG correct
+function DrapeauAlgerien() {
   return (
-    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="20" cy="20" r="20" clipPath="url(#circle-clip)" />
-      <defs>
-        <clipPath id="circle-clip">
-          <circle cx="20" cy="20" r="20" />
-        </clipPath>
-      </defs>
-      {/* Moitié gauche verte */}
-      <rect x="0" y="0" width="20" height="40" fill="#006233" />
-      {/* Moitié droite blanche */}
-      <rect x="20" y="0" width="20" height="40" fill="#FFFFFF" />
-      {/* Croissant rouge */}
-      <circle cx="21" cy="20" r="8" fill="#D21034" />
-      <circle cx="23.5" cy="20" r="6.5" fill="white" />
-      {/* Étoile rouge */}
-      <polygon
-        points="20,12.5 21.2,16.1 25,16.1 22,18.4 23.2,22 20,19.7 16.8,22 18,18.4 15,16.1 18.8,16.1"
-        fill="#D21034"
-        transform="translate(0.5, 1.5) scale(0.85)"
-      />
+    <svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+      <rect width="15" height="20" fill="#006233"/>
+      <rect x="15" width="15" height="20" fill="#ffffff"/>
+      <g transform="translate(15,10)">
+        <path d="M0,-4.5 A4.5,4.5 0 1,1 0,4.5 A3.5,3.5 0 1,0 0,-3.5 Z" fill="#d21034"/>
+        <polygon points="0,-2.5 0.7,-0.8 2.4,-0.8 1,-0.3 1.5,1.2 0,0.2 -1.5,1.2 -1,-.3 -2.4,-.8 -.7,-.8"
+          fill="#d21034" transform="rotate(36) translate(1.2,0)"/>
+      </g>
     </svg>
   )
 }
 
 export default function Navbar() {
-  const [open,     setOpen]     = useState(false)
+  const [open, setOpen] = useState(false)
   const [dropdown, setDropdown] = useState<string | null>(null)
-  const [scrolled, setScrolled] = useState(false)
-  const pathname = usePathname()
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  useEffect(() => { setOpen(false) }, [pathname])
 
   return (
-    <header className={`
-      sticky top-0 z-50 transition-all duration-300
-      ${scrolled
-        ? 'bg-white/97 backdrop-blur-md border-b border-[#e8f5e8] shadow-[0_2px_20px_rgba(0,98,51,0.08)]'
-        : 'bg-white border-b border-gray-100 shadow-sm'}
-    `}>
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-[70px]">
+        <div className="flex items-center justify-between h-16 lg:h-20">
 
-          {/* ── Logo ── */}
+          {/* Logo avec vrai drapeau algérien */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="rounded-full overflow-hidden shadow-[0_4px_12px_rgba(0,98,51,0.3)] group-hover:scale-105 transition-transform duration-200 flex-shrink-0">
-              <DrapeauAlgerie size={42} />
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-vert/20 group-hover:scale-110 transition-transform flex-shrink-0">
+              <DrapeauAlgerien />
             </div>
             <div className="hidden sm:block">
-              <span className="font-heading font-extrabold text-vert text-[15px] leading-tight block">
-                Association des Étudiants Algériens
+              <span className="font-heading font-bold text-vert text-base leading-tight block">
+                Association des Étudiants
               </span>
-              <span className="text-[11px] text-gray-500 font-semibold leading-tight">
-                de Bordeaux
+              <span className="font-heading font-bold text-vert text-base leading-tight block">
+                Algériens
               </span>
+              <span className="text-[10px] text-gray-500 leading-tight">de Bordeaux</span>
             </div>
           </Link>
 
-          {/* ── Desktop nav ── */}
+          {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) =>
               link.children ? (
-                <div
-                  key={link.label}
-                  className="relative"
+                <div key={link.label} className="relative"
                   onMouseEnter={() => setDropdown(link.label)}
-                  onMouseLeave={() => setDropdown(null)}
-                >
-                  <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[13.5px] font-medium text-gray-600 hover:text-vert hover:bg-vert-50 transition-all duration-150">
+                  onMouseLeave={() => setDropdown(null)}>
+                  <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 hover:text-vert rounded-lg hover:bg-vert-50 transition-all">
                     {link.label}
-                    <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                    <ChevronDown className="w-3.5 h-3.5" />
                   </button>
                   {dropdown === link.label && (
-                    <div className="absolute top-[calc(100%+8px)] left-0 bg-white rounded-2xl shadow-[0_16px_48px_rgba(0,0,0,0.13)] border border-[#e8f5e8] p-2 min-w-[200px] z-50">
+                    <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[200px] animate-fade-in-up">
                       {link.children.map((child) => (
-                        <Link key={child.href} href={child.href} className="block px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-gray-600 hover:bg-vert-50 hover:text-vert transition-all duration-150">
+                        <Link key={child.href} href={child.href}
+                          className="block px-4 py-2.5 text-sm text-gray-700 hover:text-vert hover:bg-vert-50 transition-colors">
                           {child.label}
                         </Link>
                       ))}
@@ -124,51 +94,53 @@ export default function Navbar() {
                   )}
                 </div>
               ) : (
-                <Link
-                  key={link.href}
-                  href={link.href!}
-                  className={`px-3.5 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ${pathname === link.href ? 'text-vert bg-vert-50' : 'text-gray-600 hover:text-vert hover:bg-vert-50'}`}
-                >
+                <Link key={link.href} href={link.href!}
+                  className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-vert rounded-lg hover:bg-vert-50 transition-all">
                   {link.label}
                 </Link>
               )
             )}
           </div>
 
-          {/* ── CTA buttons ── */}
-          <div className="hidden lg:flex items-center gap-2.5">
-            <Link href="/adhesion" className="btn-outline !text-sm !px-4 !py-2">Adhérer</Link>
-            <Link href="/don" className="btn-rouge !text-sm !px-4 !py-2">❤ Faire un don</Link>
+          {/* CTA */}
+          <div className="hidden lg:flex items-center gap-3">
+            <Link href="/adhesion" className="btn-outline text-sm !px-4 !py-2">Adhérer</Link>
+            <Link href="/don" className="btn-rouge text-sm !px-4 !py-2">❤️ Faire un don</Link>
           </div>
 
-          {/* ── Mobile toggle ── */}
-          <button onClick={() => setOpen(!open)} className="lg:hidden p-2.5 rounded-xl hover:bg-vert-50 transition-colors" aria-label="Menu">
-            {open ? <X className="w-5 h-5 text-gray-700" /> : <Menu className="w-5 h-5 text-gray-700" />}
+          {/* Mobile menu button */}
+          <button onClick={() => setOpen(!open)}
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors">
+            {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        {/* ── Mobile menu ── */}
+        {/* Mobile menu */}
         {open && (
-          <div className="lg:hidden py-4 border-t border-gray-100">
+          <div className="lg:hidden py-4 border-t border-gray-100 animate-fade-in-up">
             {navLinks.map((link) =>
               link.children ? (
                 <div key={link.label}>
-                  <p className="px-4 py-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">{link.label}</p>
+                  <p className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    {link.label}
+                  </p>
                   {link.children.map((child) => (
-                    <Link key={child.href} href={child.href} className="block px-6 py-2.5 text-sm text-gray-600 hover:text-vert hover:bg-vert-50 rounded-lg mx-2 transition-colors">
+                    <Link key={child.href} href={child.href} onClick={() => setOpen(false)}
+                      className="block px-6 py-2.5 text-sm text-gray-700 hover:text-vert hover:bg-vert-50">
                       {child.label}
                     </Link>
                   ))}
                 </div>
               ) : (
-                <Link key={link.href} href={link.href!} className={`block px-4 py-2.5 text-sm font-medium rounded-lg mx-2 transition-colors ${pathname === link.href ? 'text-vert bg-vert-50' : 'text-gray-600 hover:text-vert hover:bg-vert-50'}`}>
+                <Link key={link.href} href={link.href!} onClick={() => setOpen(false)}
+                  className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-vert hover:bg-vert-50">
                   {link.label}
                 </Link>
               )
             )}
             <div className="flex gap-3 px-4 pt-4 mt-2 border-t border-gray-100">
-              <Link href="/adhesion" className="btn-outline !text-sm flex-1 text-center !py-2.5">Adhérer</Link>
-              <Link href="/don" className="btn-rouge !text-sm flex-1 text-center !py-2.5">❤ Faire un don</Link>
+              <Link href="/adhesion" className="btn-outline text-sm flex-1 text-center !py-2.5">Adhérer</Link>
+              <Link href="/don" className="btn-rouge text-sm flex-1 text-center !py-2.5">❤️ Faire un don</Link>
             </div>
           </div>
         )}
