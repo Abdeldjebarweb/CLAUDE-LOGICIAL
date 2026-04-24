@@ -208,7 +208,7 @@ export default function PortailMembrePage() {
         {/* Actions rapides */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { icon: FileText, label: 'Demandes', href: '/aide', color: 'text-rouge' },
+            { icon: FileText, label: 'Mes demandes', href: '/mes-demandes', color: 'text-rouge' },
             { icon: Calendar, label: 'Événements', href: '/evenements', color: 'text-vert' },
             { icon: User, label: 'Annuaire', href: '/annuaire', color: 'text-blue-600' },
             { icon: HelpCircle, label: 'Covoiturage', href: '/covoiturage', color: 'text-orange-600' },
