@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import {
   User, LogIn, UserPlus, LogOut, FileText, Calendar,
-  HelpCircle, Eye, EyeOff, CheckCircle, Loader2, Edit, Save, Shield
+  Car, Eye, EyeOff, CheckCircle, Loader2, Edit, Save, Shield
 } from 'lucide-react'
 
 // Validation helpers
@@ -211,7 +211,7 @@ export default function PortailMembrePage() {
             { icon: FileText, label: 'Mes demandes', href: '/mes-demandes', color: 'text-rouge' },
             { icon: Calendar, label: 'Événements', href: '/evenements', color: 'text-vert' },
             { icon: User, label: 'Annuaire', href: '/annuaire', color: 'text-blue-600' },
-            { icon: HelpCircle, label: 'Covoiturage', href: '/covoiturage', color: 'text-orange-600' },
+            { icon: Car, label: 'Covoiturage', href: '/covoiturage', color: 'text-orange-600' },
           ].map(item => (
             <a key={item.label} href={item.href}
               className="bg-white rounded-xl border p-4 text-center hover:-translate-y-0.5 transition-transform no-underline">
