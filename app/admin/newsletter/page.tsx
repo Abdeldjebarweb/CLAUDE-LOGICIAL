@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Mail, Users, Send, Plus, X, Loader2, CheckCircle, Trash2, Download } from 'lucide-react'
+import { Mail, Send, Plus, X, Loader2, CheckCircle, Trash2, Download } from 'lucide-react'
 
 export default function AdminNewsletter() {
   const [tab, setTab] = useState<'abonnes' | 'envoyer'>('abonnes')
