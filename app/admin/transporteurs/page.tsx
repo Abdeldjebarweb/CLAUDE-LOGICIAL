@@ -29,6 +29,7 @@ export default function AdminTransporteurs() {
   const [items, setItems] = useState<any[]>([])
   const [sel, setSel] = useState<any>(null)
   const [filter, setFilter] = useState('all')
+  const [selected, setSelected] = useState<string[]>([])
 
   const load = async () => {
     const { data } = await supabase
@@ -56,6 +57,25 @@ export default function AdminTransporteurs() {
   const toggleCoordonnees = async (id: string, masquer: boolean) => {
     await supabase.from('transporteurs').update({ coordonnees_masquees: masquer }).eq('id', id)
     if (sel?.id === id) setSel((prev: any) => ({ ...prev, coordonnees_masquees: masquer }))
+    load()
+  }
+
+  const toggleSelect = (id: string) =>
+    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+
+  const selectAll = () =>
+    setSelected(selected.length === filtered.length ? [] : filtered.map(i => i.id))
+
+  const deleteSelected = async () => {
+    if (!confirm(`Supprimer ${selected.length} annonce(s) ?`)) return
+    await Promise.all(selected.map(id => supabase.from('transporteurs').delete().eq('id', id)))
+    setSelected([])
+    load()
+  }
+
+  const deleteSingle = async (id: string) => {
+    if (!confirm('Supprimer cette annonce ?')) return
+    await supabase.from('transporteurs').delete().eq('id', id)
     load()
   }
 
@@ -196,11 +216,24 @@ export default function AdminTransporteurs() {
         </div>
       )}
 
-      {/* Tableau */}
+      {selected.length > 0 && (
+        <div className="flex items-center gap-3 bg-rouge-50 border border-rouge-200 rounded-xl p-3 mb-3">
+          <span className="text-sm font-semibold text-rouge">{selected.length} sélectionné(s)</span>
+          <button onClick={deleteSelected} className="flex items-center gap-1.5 text-xs bg-rouge text-white px-3 py-1.5 rounded-lg font-semibold">
+            <Trash2 className="w-3.5 h-3.5" /> Supprimer
+          </button>
+          <button onClick={() => setSelected([])} className="text-xs text-gray-500 hover:underline ml-auto">Annuler</button>
+        </div>
+      )}
       <div className="bg-white rounded-xl border overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
             <tr>
+              <th className="px-4 py-3 w-8">
+                <button onClick={selectAll} className="text-gray-400 hover:text-vert">
+                  {selected.length === filtered.length && filtered.length > 0 ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+                </button>
+              </th>
               <th className="px-4 py-3 text-left font-semibold">Nom</th>
               <th className="px-4 py-3 text-left font-semibold hidden md:table-cell">Trajet</th>
               <th className="px-4 py-3 text-left font-semibold hidden lg:table-cell">Date</th>
@@ -212,6 +245,11 @@ export default function AdminTransporteurs() {
           <tbody className="divide-y">
             {filtered.map(t => (
               <tr key={t.id} className={`hover:bg-gray-50 ${t.statut === 'en_attente' ? 'bg-yellow-50/30' : ''}`}>
+                <td className="px-4 py-3">
+                  <button onClick={() => toggleSelect(t.id)} className="text-gray-400 hover:text-vert">
+                    {selected.includes(t.id) ? <CheckSquare className="w-4 h-4 text-vert" /> : <Square className="w-4 h-4" />}
+                  </button>
+                </td>
                 <td className="px-4 py-3 font-medium">{t.prenom} {t.nom}</td>
                 <td className="px-4 py-3 text-gray-600 hidden md:table-cell text-xs">
                   {t.depart} → {t.arrivee}
@@ -245,6 +283,9 @@ export default function AdminTransporteurs() {
                       className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100"
                       title={t.coordonnees_masquees ? 'Afficher contacts' : 'Masquer contacts'}>
                       {t.coordonnees_masquees ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </button>
+                    <button onClick={() => deleteSingle(t.id)} className="p-1.5 rounded-lg text-rouge hover:bg-rouge-50" title="Supprimer">
+                      <Trash2 className="w-4 h-4" />
                     </button>
                     <button onClick={() => setSel(t)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100" title="Détails">
                       <Eye className="w-4 h-4" />
