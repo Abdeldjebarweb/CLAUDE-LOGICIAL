@@ -17,7 +17,11 @@ export default function AdminGallery() {
     const { data } = await supabase.from('gallery_items').select('*').order('created_at', { ascending: false })
     setItems(data || [])
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    const interval = setInterval(load, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
