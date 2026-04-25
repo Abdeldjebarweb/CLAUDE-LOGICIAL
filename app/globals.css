@@ -24,7 +24,7 @@ h1, h2, h3, h4 {
   font-family: 'Playfair Display', serif;
 }
 
-/* Algerian pattern */
+/* Algerian pattern decorative element */
 .pattern-algerian {
   background-image: 
     radial-gradient(circle at 25% 25%, rgba(0,98,51,0.05) 0%, transparent 50%),
@@ -33,24 +33,29 @@ h1, h2, h3, h4 {
 
 /* Hero gradient */
 .hero-gradient {
-  background: linear-gradient(140deg, #006233 0%, #004d27 50%, #002d16 100%);
+  background: linear-gradient(135deg, #006233 0%, #004d27 40%, #003d1f 100%);
 }
 
-/* Crescent bg */
+/* Star decoration (inspired by Algerian flag) */
+.star-decoration::before {
+  content: '★';
+  color: rgba(210,16,52,0.15);
+  font-size: 200px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+
+/* Crescent decoration */
 .crescent-bg {
   position: relative;
   overflow: hidden;
 }
 .crescent-bg::after {
-  content: '☪';
-  position: absolute;
-  right: -60px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 500px;
-  color: rgba(255,255,255,0.035);
-  pointer-events: none;
-  line-height: 1;
+  content: '';
+  display: none;
 }
 
 /* Animations */
@@ -100,26 +105,22 @@ h1, h2, h3, h4 {
     active:scale-[0.98];
 }
 
-/* ── NOUVEAU : Card avec hover vert ── */
+/* Card styles */
 .card {
-  @apply bg-white rounded-2xl transition-all duration-300 overflow-hidden
-    border border-vert-50 shadow-sm
-    hover:shadow-xl hover:border-vert-200 hover:-translate-y-1;
+  @apply bg-white rounded-2xl shadow-md hover:shadow-xl transition-all 
+    duration-300 overflow-hidden border border-gray-100;
 }
 
 /* Admin sidebar */
 .admin-sidebar {
   @apply bg-vert-800 text-white min-h-screen w-64 p-4;
 }
+
 .admin-sidebar a {
   @apply block px-4 py-2.5 rounded-lg text-white/80 hover:text-white 
     hover:bg-white/10 transition-all duration-200 text-sm;
 }
+
 .admin-sidebar a.active {
   @apply bg-white/15 text-white font-semibold;
-}
-
-/* Section label */
-.section-label {
-  @apply text-sm font-bold uppercase tracking-widest text-rouge mb-2 block;
 }
