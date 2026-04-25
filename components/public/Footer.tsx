@@ -22,7 +22,7 @@ export default function Footer() {
               Solidarité, entraide et accompagnement pour tous les étudiants algériens à Bordeaux.
             </p>
             <div className="flex gap-3 mt-5">
-              <a href="https://www.facebook.com/share/g/1bHW7gzQgQ/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-vert/40 transition-colors" title="Facebook AEAB">
+              <a href="https://www.facebook.com/share/g/1bHW7gzQgQ/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                 <Facebook className="w-4 h-4" />
               </a>
               <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
@@ -84,13 +84,13 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-rouge-400 shrink-0" />
-                <a href="mailto:contact@aeab.fr" className="text-sm text-white/70 hover:text-white transition-colors">
-                  contact@aeab.fr
+                <a href="mailto:associationeab@gmail.com" className="text-sm text-white/70 hover:text-white transition-colors">
+                  associationeab@gmail.com
                 </a>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-rouge-400 shrink-0" />
-                <span className="text-sm text-white/70">+33 X XX XX XX XX</span>
+                <span className="text-sm text-white/70">06 70 37 67 67</span>
               </div>
             </div>
           </div>
