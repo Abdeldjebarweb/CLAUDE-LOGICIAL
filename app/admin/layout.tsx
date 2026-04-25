@@ -7,13 +7,14 @@ import Link from 'next/link'
 import {
   LayoutDashboard, FileText, Calendar, Users, Handshake, Image,
   UserPlus, HelpCircle, Heart, Mail, Settings, LogOut, Menu, X,
-  Vote, Bell, Newspaper, Car, Plane, Shield, UserCog
+  Vote, Bell, Newspaper, Car, Plane, Shield, UserCog, TicketCheck
 } from 'lucide-react'
 
 const links = [
   { href: '/admin', label: 'Tableau de bord', icon: LayoutDashboard },
   { href: '/admin/articles', label: 'Articles', icon: FileText },
   { href: '/admin/evenements', label: 'Événements', icon: Calendar },
+  { href: '/admin/reservations', label: 'Réservations', icon: TicketCheck },
   { href: '/admin/equipe', label: 'Équipe', icon: Users },
   { href: '/admin/partenaires', label: 'Partenaires', icon: Handshake },
   { href: '/admin/galerie', label: 'Galerie', icon: Image },
