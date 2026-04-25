@@ -22,6 +22,7 @@ const links = [
   { href: '/admin/dons', label: 'Dons', icon: Heart },
   { href: '/admin/messages', label: 'Messages', icon: Mail },
   { href: '/admin/newsletter', label: 'Newsletter', icon: Newspaper },
+  { href: '/admin/covoiturage', label: 'Covoiturage', icon: Car },
   { href: '/admin/transporteurs', label: 'Transporteurs', icon: Plane },
   { href: '/admin/votes', label: 'Votes & Sondages', icon: Vote },
   { href: '/admin/benevoles', label: 'Bénévoles', icon: Bell },
