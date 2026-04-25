@@ -26,8 +26,8 @@ export default async function HomePage() {
     <>
       {/* ═══════ HERO ═══════ */}
       <section className="hero-gradient crescent-bg relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-          <img src="https://i.ibb.co/LDtrRVPK/Whats-App-Image-2026-04-25-at-18-53-30.jpg" alt="" className="w-96 h-96 object-contain filter brightness-0 invert" />
+        <div className="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-center opacity-20 pointer-events-none">
+          <img src="https://i.ibb.co/LDtrRVPK/Whats-App-Image-2026-04-25-at-18-53-30.jpg" alt="" className="w-full h-full object-contain" />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-36 relative">
           <div className="max-w-3xl">
