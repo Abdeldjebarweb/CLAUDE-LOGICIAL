@@ -6,6 +6,25 @@ import { Plus, Pencil, Trash2, Loader2, X, Upload } from 'lucide-react'
 
 const empty = { title: '', slug: '', content: '', image_url: '', category: '', author: '', status: 'draft' as const }
 
+// Compression image côté client
+async function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')!
+    const img = new Image()
+    img.onload = () => {
+      const ratio = Math.min(maxWidth / img.width, 1)
+      canvas.width = img.width * ratio
+      canvas.height = img.height * ratio
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      canvas.toBlob(blob => {
+        resolve(new File([blob!], file.name, { type: 'image/jpeg' }))
+      }, 'image/jpeg', quality)
+    }
+    img.src = URL.createObjectURL(file)
+  })
+}
+
 export default function AdminArticles() {
   const [items, setItems] = useState<any[]>([])
   const [editing, setEditing] = useState<any>(null)
@@ -35,9 +54,9 @@ export default function AdminArticles() {
   const uploadImage = async (): Promise<string | null> => {
     if (!imageFile) return editing.image_url || null
     setUploading(true)
-    const ext = imageFile.name.split('.').pop()
-    const fileName = `articles/${Date.now()}.${ext}`
-    const { error } = await supabase.storage.from('documents').upload(fileName, imageFile)
+    const compressed = await compressImage(imageFile)
+    const fileName = `articles/${Date.now()}.jpg`
+    const { error } = await supabase.storage.from('documents').upload(fileName, compressed)
     setUploading(false)
     if (error) return null
     const { data } = supabase.storage.from('documents').getPublicUrl(fileName)
