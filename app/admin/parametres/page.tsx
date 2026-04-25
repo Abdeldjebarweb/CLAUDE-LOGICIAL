@@ -19,6 +19,9 @@ export default function AdminParametres() {
     whatsapp_number: '0670376767',
     about_text: '',
     mission_text: '',
+    announcement_text: '',
+    announcement_active: 'false',
+    announcement_color: 'vert',
   })
 
   useEffect(() => {
@@ -125,6 +128,30 @@ export default function AdminParametres() {
         </div>
       </div>
 
+      {/* Bannière d'annonce */}
+      <div className="bg-white rounded-xl border p-6 space-y-4">
+        <h3 className="font-heading font-bold flex items-center gap-2">📢 Bannière d&apos;annonce</h3>
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <input type="checkbox" checked={settings.announcement_active === 'true'}
+            onChange={e => setSettings(prev => ({ ...prev, announcement_active: e.target.checked ? 'true' : 'false' }))}
+            className="w-4 h-4 accent-vert" />
+          Afficher la bannière sur le site
+        </label>
+        <div>
+          <label className="form-label">Texte de l&apos;annonce</label>
+          <input className="form-input" value={settings.announcement_text} onChange={set('announcement_text')}
+            placeholder="Ex: Réunion mensuelle le 15 mai à 18h à Bordeaux !" />
+        </div>
+        <div>
+          <label className="form-label">Couleur</label>
+          <select className="form-input" value={settings.announcement_color} onChange={set('announcement_color')}>
+            <option value="vert">🟢 Vert</option>
+            <option value="rouge">🔴 Rouge</option>
+            <option value="yellow">🟡 Jaune</option>
+          </select>
+        </div>
+      </div>
+
       <button onClick={save} disabled={loading}
         className="btn-primary w-full flex items-center justify-center gap-2">
         {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Enregistrement...</> : <><Save className="w-4 h-4" /> Enregistrer tous les paramètres</>}
@@ -132,3 +159,5 @@ export default function AdminParametres() {
     </div>
   )
 }
+// Note: bannière d'annonce gérée via site_settings avec les clés:
+// announcement_text, announcement_active (true/false), announcement_color (vert/rouge/yellow)
