@@ -45,7 +45,7 @@ export default function Navbar() {
           {/* Logo avec vrai drapeau algérien */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-12 h-12 overflow-hidden group-hover:scale-110 transition-transform flex-shrink-0">
-              <img src="/logo-aeab.jpg" alt="Logo AEAB" className="w-full h-full object-contain" />
+              <img src="https://i.ibb.co/LDtrRVPK/Whats-App-Image-2026-04-25-at-18-53-30.jpg" alt="Logo AEAB" className="w-full h-full object-contain" />
             </div>
             <div className="hidden sm:block">
               <span className="font-heading font-bold text-vert text-base leading-tight block">
