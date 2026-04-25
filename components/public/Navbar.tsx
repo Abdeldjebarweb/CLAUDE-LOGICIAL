@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, ChevronDown } from 'lucide-react'
+import { Menu, X, ChevronDown, Search } from 'lucide-react'
 
 const navLinks = [
   { href: '/', label: 'Accueil' },
@@ -88,6 +88,11 @@ export default function Navbar() {
               )
             )}
           </div>
+
+          {/* Search */}
+          <a href="/recherche" className="hidden lg:flex items-center gap-2 text-gray-500 hover:text-vert transition-colors px-3 py-2 rounded-lg hover:bg-gray-50">
+            <Search className="w-4 h-4" />
+          </a>
 
           {/* CTA */}
           <div className="hidden lg:flex items-center gap-3">
