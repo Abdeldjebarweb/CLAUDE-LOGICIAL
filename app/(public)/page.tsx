@@ -25,16 +25,11 @@ export default async function HomePage() {
   return (
     <>
       {/* ═══════ HERO ═══════ */}
-      <section className="relative overflow-hidden min-h-[600px]">
-        {/* Image de fond drapeaux Algérie + France */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/hero-bg.webp')" }}
-        />
-        {/* Overlay vert foncé pour lisibilité */}
-        <div className="absolute inset-0 bg-vert-900/75" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-36 relative z-10">
+      <section className="hero-gradient crescent-bg relative overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+          <img src="/logo-aeab.jpg" alt="" className="w-96 h-96 object-contain filter brightness-0 invert" />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-36 relative">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 mb-6 animate-fade-in-up">
               <Star className="w-4 h-4 text-rouge-400" />
@@ -43,7 +38,7 @@ export default async function HomePage() {
             <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight animate-fade-in-up animate-delay-100">
               Association des Étudiants{' '}
               <span className="text-rouge-400">Algériens</span>{' '}
-              de Bordeaux
+              à Bordeaux
             </h1>
             <p className="text-lg text-white/80 mt-6 leading-relaxed max-w-xl animate-fade-in-up animate-delay-200">
               Solidarité, entraide et accompagnement pour chaque étudiant algérien à Bordeaux. 
@@ -63,7 +58,7 @@ export default async function HomePage() {
           </div>
         </div>
         {/* Decorative bottom wave */}
-        <div className="absolute bottom-0 left-0 right-0 z-10">
+        <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 80" className="w-full h-auto">
             <path fill="#ffffff" d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,50 1440,40 L1440,80 L0,80 Z" />
           </svg>
@@ -75,8 +70,8 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Users, title: 'Adhésion', desc: "Rejoignez notre communauté étudiante", href: '/adhesion', color: 'bg-vert' },
-              { icon: HandHeart, title: 'Aide', desc: "Besoin d'accompagnement ? On est là", href: '/aide', color: 'bg-rouge' },
+              { icon: Users, title: 'Adhésion', desc: 'Rejoignez notre communauté étudiante', href: '/adhesion', color: 'bg-vert' },
+              { icon: HandHeart, title: 'Aide', desc: 'Besoin d\'accompagnement ? On est là', href: '/aide', color: 'bg-rouge' },
               { icon: Calendar, title: 'Événements', desc: 'Découvrez nos prochaines activités', href: '/evenements', color: 'bg-vert-700' },
               { icon: Heart, title: 'Don', desc: 'Soutenez nos actions solidaires', href: '/don', color: 'bg-rouge-700' },
             ].map((item) => (
