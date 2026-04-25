@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Plane, Eye, X, CheckCircle, XCircle, Phone, Mail, Package, Calendar, MapPin, EyeOff } from 'lucide-react'
+import { Plane, Eye, EyeOff, X, CheckCircle, XCircle, Phone, Mail, Package, Calendar, MapPin, Trash2, CheckSquare, Square } from 'lucide-react'
 
 const sC: Record<string, string> = {
   en_attente: 'bg-yellow-50 text-yellow-700',
