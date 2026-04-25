@@ -34,6 +34,8 @@ export default function CovoituragePage() {
     e.preventDefault()
     setLoading(true)
     await supabase.from('covoiturages').insert([{
+      statut: 'en_attente',
+      actif: false,
       ...form,
       nb_places: parseInt(form.nb_places),
       prix_par_place: parseFloat(form.prix_par_place),
