@@ -2,12 +2,14 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Plus, Trash2, X, Vote, BarChart2 } from 'lucide-react'
+import { Plus, Trash2, X, Vote, BarChart2, Edit } from 'lucide-react'
 
 export default function AdminVotes() {
   const [votes, setVotes] = useState<any[]>([])
   const [showForm, setShowForm] = useState(false)
   const [sel, setSel] = useState<any>(null)
+  const [editId, setEditId] = useState<string | null>(null)
+
   const [form, setForm] = useState({
     titre: '', description: '', options: ['', ''],
     date_fin: '', resultats_publics: false
@@ -53,22 +55,48 @@ export default function AdminVotes() {
     setForm(f => ({ ...f, options: opts }))
   }
 
+  const openEdit = (v: any) => {
+    setEditId(v.id)
+    setForm({
+      titre: v.titre,
+      description: v.description || '',
+      options: v.options || ['', ''],
+      date_fin: v.date_fin ? new Date(v.date_fin).toISOString().slice(0, 16) : '',
+      resultats_publics: v.resultats_publics || false,
+    })
+    setShowForm(true)
+  }
+
   const handleCreate = async () => {
     const validOptions = form.options.filter(o => o.trim())
     if (!form.titre.trim() || validOptions.length < 2) {
       alert('Titre et au moins 2 options requises')
       return
     }
-    const { error } = await supabase.from('votes').insert([{
-      titre: form.titre,
-      description: form.description,
-      options: validOptions,
-      date_fin: form.date_fin || null,
-      resultats_publics: form.resultats_publics,
-      actif: true,
-    }])
+    let error = null
+    if (editId) {
+      const { error: e } = await supabase.from('votes').update({
+        titre: form.titre,
+        description: form.description,
+        options: validOptions,
+        date_fin: form.date_fin || null,
+        resultats_publics: form.resultats_publics,
+      }).eq('id', editId)
+      error = e
+    } else {
+      const { error: e } = await supabase.from('votes').insert([{
+        titre: form.titre,
+        description: form.description,
+        options: validOptions,
+        date_fin: form.date_fin || null,
+        resultats_publics: form.resultats_publics,
+        actif: true,
+      }])
+      error = e
+    }
     if (error) { alert('Erreur: ' + error.message); return }
     setShowForm(false)
+    setEditId(null)
     setForm({ titre: '', description: '', options: ['', ''], date_fin: '', resultats_publics: false })
     load()
   }
@@ -109,7 +137,7 @@ export default function AdminVotes() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
           <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-heading font-bold text-lg">Nouveau sondage</h3>
+              <h3 className="font-heading font-bold text-lg">{editId ? "Modifier le sondage" : "Nouveau sondage"}</h3>
               <button onClick={() => setShowForm(false)}><X className="w-5 h-5" /></button>
             </div>
             <div className="space-y-4">
@@ -151,7 +179,7 @@ export default function AdminVotes() {
                   className="w-4 h-4 accent-vert" />
                 <span className="text-sm">Résultats visibles avant de voter</span>
               </label>
-              <button onClick={handleCreate} className="btn-primary w-full">Créer le sondage</button>
+              <button onClick={handleCreate} className="btn-primary w-full">{editId ? "Enregistrer les modifications" : "Créer le sondage"}</button>
             </div>
           </div>
         </div>
@@ -213,6 +241,9 @@ export default function AdminVotes() {
                 </p>
               </div>
               <div className="flex gap-2 flex-shrink-0">
+                <button onClick={() => openEdit(v)} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200" title="Modifier">
+                  <Edit className="w-4 h-4 text-gray-600" />
+                </button>
                 <button onClick={() => loadResultats(v)} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200" title="Résultats">
                   <BarChart2 className="w-4 h-4 text-gray-600" />
                 </button>
