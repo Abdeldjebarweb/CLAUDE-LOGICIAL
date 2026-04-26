@@ -6,8 +6,8 @@ import { supabase } from '@/lib/supabase'
 import { ArrowRight, Heart, Users, Calendar, BookOpen, HandHeart, Star, MapPin, Clock, Quote } from 'lucide-react'
 
 const testimonials = [
-  { nom: "Yasmine B.", texte: "L'AEAB m'a aidée à trouver un logement dès mon arrivée à Bordeaux. Sans eux, j'aurais été perdue.", role: "Étudiante en médecine" },
-  { nom: "Karim M.", texte: "Grâce à l'association, j'ai rencontré des amis formidables et je me suis vraiment intégré à Bordeaux.", role: "Étudiant en informatique" },
+  { nom: "Yasmine B.", texte: "L'AEAB m'a aidée à trouver un logement dès mon arrivée de Bordeaux. Sans eux, j'aurais été perdue.", role: "Étudiante en médecine" },
+  { nom: "Karim M.", texte: "Grâce à l'association, j'ai rencontré des amis formidables et je me suis vraiment intégré de Bordeaux.", role: "Étudiant en informatique" },
   { nom: "Sarah A.", texte: "Les événements organisés par l'AEAB sont toujours super ! C'est une vraie famille loin de chez nous.", role: "Étudiante en droit" },
 ]
 
@@ -63,10 +63,10 @@ export default function HomePage() {
             <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
               Association des Étudiants{' '}
               <span className="text-rouge-400">Algériens</span>{' '}
-              à Bordeaux
+              de Bordeaux
             </h1>
             <p className="text-lg text-white/80 mt-6 leading-relaxed max-w-xl">
-              Solidarité, entraide et accompagnement pour chaque étudiant algérien à Bordeaux.
+              Solidarité, entraide et accompagnement pour chaque étudiant algérien de Bordeaux.
               Ensemble, construisons notre communauté.
             </p>
             <div className="flex flex-wrap gap-4 mt-8">
@@ -110,7 +110,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="font-heading text-3xl font-bold text-gray-900">Comment pouvons-nous vous aider ?</h2>
-            <p className="text-gray-500 mt-2">Des services pensés pour les étudiants algériens à Bordeaux</p>
+            <p className="text-gray-500 mt-2">Des services pensés pour les étudiants algériens de Bordeaux</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
