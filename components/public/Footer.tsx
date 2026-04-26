@@ -15,11 +15,11 @@ export default function Footer() {
               </div>
               <div>
                 <span className="font-heading font-bold text-lg block">AEAB</span>
-                <span className="text-xs text-white/60">Étudiants Algériens à Bordeaux</span>
+                <span className="text-xs text-white/60">Étudiants Algériens de Bordeaux</span>
               </div>
             </div>
             <p className="text-sm text-white/70 leading-relaxed">
-              Solidarité, entraide et accompagnement pour tous les étudiants algériens à Bordeaux.
+              Solidarité, entraide et accompagnement pour tous les étudiants algériens de Bordeaux.
             </p>
             <div className="flex gap-3 mt-5">
               <a href="https://www.facebook.com/share/g/1bHW7gzQgQ/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
@@ -101,7 +101,7 @@ export default function Footer() {
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-white/50">
-            © {new Date().getFullYear()} Association des Étudiants Algériens à Bordeaux. Tous droits réservés.
+            © {new Date().getFullYear()} Association des Étudiants Algériens de Bordeaux. Tous droits réservés.
           </p>
           <div className="flex gap-4">
             <Link href="/mentions-legales" className="text-xs text-white/50 hover:text-white/80 transition-colors">
