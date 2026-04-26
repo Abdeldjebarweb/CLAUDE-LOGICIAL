@@ -26,6 +26,7 @@ const navLinks = [
       { href: '/votes', label: '🗳️ Votes & sondages' },
       { href: '/annonces', label: '💼 Emploi & stages' },
       { href: '/bibliotheque', label: '📚 Bibliothèque' },
+      { href: '/professionnels', label: '🏪 Professionnels' },
     ],
   },
   { href: '/galerie', label: 'Galerie' },
