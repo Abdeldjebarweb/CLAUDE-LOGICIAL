@@ -7,7 +7,7 @@ import Link from 'next/link'
 import {
   LayoutDashboard, FileText, Calendar, Users, Handshake, Image,
   UserPlus, HelpCircle, Heart, Mail, Settings, LogOut, Menu, X,
-  Vote, Bell, Newspaper, Car, Plane, Shield, UserCog, TicketCheck
+  Vote, Bell, Newspaper, Car, Plane, Shield, UserCog, TicketCheck, Briefcase
 } from 'lucide-react'
 
 const links = [
@@ -15,6 +15,7 @@ const links = [
   { href: '/admin/articles', label: 'Articles', icon: FileText },
   { href: '/admin/evenements', label: 'Événements', icon: Calendar },
   { href: '/admin/reservations', label: 'Réservations', icon: TicketCheck },
+  { href: '/admin/annonces', label: 'Annonces emploi', icon: Briefcase },
   { href: '/admin/equipe', label: 'Équipe', icon: Users },
   { href: '/admin/partenaires', label: 'Partenaires', icon: Handshake },
   { href: '/admin/galerie', label: 'Galerie', icon: Image },
