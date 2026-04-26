@@ -24,6 +24,8 @@ const navLinks = [
       { href: '/covoiturage', label: '🚗 Covoiturage' },
       { href: '/transporteurs', label: '✈️ Transporteurs' },
       { href: '/votes', label: '🗳️ Votes & sondages' },
+      { href: '/annonces', label: '💼 Emploi & stages' },
+      { href: '/bibliotheque', label: '📚 Bibliothèque' },
     ],
   },
   { href: '/galerie', label: 'Galerie' },
