@@ -42,6 +42,9 @@ export default function LoginPage() {
           <div>
             <label className="form-label">Mot de passe</label>
             <input type="password" required className="form-input" value={password} onChange={e => setPassword(e.target.value)} />
+            <div className="text-right mt-1">
+              <a href="/auth/forgot-password" className="text-xs text-vert hover:underline">Mot de passe oublié ?</a>
+            </div>
           </div>
           <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Lock className="w-4 h-4" />}
