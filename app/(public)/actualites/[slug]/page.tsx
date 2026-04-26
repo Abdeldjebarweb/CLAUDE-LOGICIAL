@@ -1,3 +1,5 @@
+'use client'
+
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, User, Tag } from 'lucide-react'
@@ -62,6 +64,25 @@ export default async function ArticleDetailPage({ params }: { params: { slug: st
           <div className="prose prose-green max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap">
             {article.content}
           </div>
+        </div>
+
+        {/* Partage */}
+        <div className="mt-6 flex items-center gap-3 flex-wrap">
+          <p className="text-sm font-semibold text-gray-700">Partager :</p>
+          <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+            target="_blank" rel="noopener noreferrer"
+            className="bg-[#1877F2] text-white text-xs px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+            📘 Facebook
+          </a>
+          <a href={`https://wa.me/?text=${encodeURIComponent(article.title + ' - ' + (typeof window !== 'undefined' ? window.location.href : ''))}`}
+            target="_blank" rel="noopener noreferrer"
+            className="bg-[#25D366] text-white text-xs px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+            💬 WhatsApp
+          </a>
+          <button onClick={() => { navigator.clipboard.writeText(typeof window !== 'undefined' ? window.location.href : ''); alert('Lien copié !') }}
+            className="border text-gray-600 text-xs px-4 py-2 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+            🔗 Copier le lien
+          </button>
         </div>
 
         {/* Articles récents */}
