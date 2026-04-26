@@ -39,6 +39,8 @@ export default function ContactUnifiePage() {
   const [sujet, setSujet] = useState('')
   const [message, setMessage] = useState('')
   const [age, setAge] = useState('')
+  const [dateNaissance, setDateNaissance] = useState('')
+  const [villeNaissance, setVilleNaissance] = useState('')
   const [institution, setInstitution] = useState('')
   const [filiere, setFiliere] = useState('')
   const [situation, setSituation] = useState('')
@@ -111,6 +113,8 @@ export default function ContactUnifiePage() {
           email: email.toLowerCase().trim(),
           phone: telephone,
           age: parseInt(age) || 0,
+          date_naissance: dateNaissance,
+          ville_naissance: villeNaissance,
           institution,
           field: filiere,
           situation,
