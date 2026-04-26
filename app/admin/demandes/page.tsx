@@ -88,6 +88,7 @@ export default function AdminDemandes() {
     const dateDebut = new Date(a.date_debut).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
     const dateNaissanceMembre = r.date_naissance ? new Date(r.date_naissance).toLocaleDateString('fr-FR') : '[Date de naissance]'
     const villeNaissanceMembre = r.ville_naissance || '[Ville de naissance]'
+    const paysNaissanceMembre = r.pays_naissance || 'Algérie'
 
     const html = `
 <!DOCTYPE html>
@@ -114,7 +115,7 @@ export default function AdminDemandes() {
   <p>déclare sur l'honneur héberger à mon domicile 
   <span class="field">${r.first_name?.toUpperCase() || ''} ${r.last_name?.toUpperCase() || ''}</span>, 
   né(e) le <span class="field">${dateNaissanceMembre}</span>
-  à <span class="field">${villeNaissanceMembre}</span>,</p>
+  à <span class="field">${villeNaissanceMembre} (${paysNaissanceMembre})</span>,</p>
 
   <p>depuis le <span class="field">${dateDebut}</span> à l'adresse suivante :</p>
 
