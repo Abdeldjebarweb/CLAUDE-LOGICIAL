@@ -289,9 +289,9 @@ export default function HomePage() {
           <p className="text-white/80 mt-4 text-lg">
             Chaque don nous permet d&apos;aider un étudiant de plus.
           </p>
-          <Link href="/don" className="inline-flex items-center gap-2 bg-white text-rouge px-8 py-4 rounded-xl font-bold text-lg mt-8 hover:bg-white/90 transition-all shadow-xl">
+          <a href="https://www.helloasso.com/associations/association-des-etudiants-algeriens-de-bordeaux" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-rouge px-8 py-4 rounded-xl font-bold text-lg mt-8 hover:bg-white/90 transition-all shadow-xl">
             <Heart className="w-5 h-5" /> Faire un don
-          </Link>
+          </a>
         </div>
       </section>
 
