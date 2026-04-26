@@ -131,7 +131,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className={`fixed lg:static inset-y-0 left-0 z-50 admin-sidebar transform transition-transform lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} overflow-y-auto`}>
         <div className="flex items-center justify-between mb-6 flex-shrink-0">
           <Link href="/admin" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">☪</div>
+            <div className="w-9 h-9 rounded-full overflow-hidden bg-white flex-shrink-0"><img src="https://i.ibb.co/LDtrRVPK/Whats-App-Image-2026-04-25-at-18-53-30.jpg" alt="Logo AEAB" className="w-full h-full object-contain" /></div>
             <div>
               <span className="font-heading font-bold block text-sm">AEAB Admin</span>
               <span className="text-white/40 text-xs flex items-center gap-1">
