@@ -1,6 +1,7 @@
 import Navbar from '@/components/public/Navbar'
 import Footer from '@/components/public/Footer'
 import AnnouncementBanner from '@/components/public/AnnouncementBanner'
+import BackToTop from '@/components/public/BackToTop'
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,6 +10,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <Navbar />
       <main className="min-h-screen">{children}</main>
       <Footer />
+
+      <BackToTop />
 
       {/* Bouton WhatsApp flottant */}
       <a
