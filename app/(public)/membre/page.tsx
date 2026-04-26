@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import {
   User, LogIn, UserPlus, LogOut, FileText, Calendar,
-  Car, Eye, EyeOff, CheckCircle, Loader2, Edit, Save, Shield
+  Car, Eye, EyeOff, CheckCircle, Loader2, Edit, Save, Shield, CreditCard
 } from 'lucide-react'
 
 // Validation helpers
@@ -219,6 +219,37 @@ export default function PortailMembrePage() {
               <p className="text-xs font-semibold text-gray-700">{item.label}</p>
             </a>
           ))}
+        </div>
+
+        {/* Carte membre */}
+        <div className="bg-vert-50 border border-vert-200 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="font-semibold text-sm text-vert">🪪 Carte de membre</p>
+            <p className="text-xs text-gray-500 mt-0.5">Téléchargez votre carte membre officielle en PDF</p>
+          </div>
+          <button onClick={() => {
+            const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:30px;font-family:Arial;}
+            .card{width:350px;height:200px;background:linear-gradient(135deg,#1a5c38,#0d3d24);border-radius:12px;padding:20px;color:white;display:flex;flex-direction:column;justify-content:space-between;}
+            .title{font-size:10px;letter-spacing:2px;opacity:0.8;}
+            .name{font-size:22px;font-weight:bold;margin-top:8px;}
+            .email{font-size:10px;opacity:0.7;margin-top:2px;}
+            .bottom{display:flex;justify-content:space-between;align-items:flex-end;}
+            .badge{background:rgba(255,255,255,0.2);padding:4px 10px;border-radius:20px;font-size:10px;}
+            @media print{body{padding:0;}}</style></head>
+            <body><div class="card">
+            <div><div class="title">AEAB — Association des Étudiants Algériens de Bordeaux</div>
+            <div class="name">${profile?.prenom || ''} ${profile?.nom || ''}</div>
+            <div class="email">${user?.email || ''}</div></div>
+            <div class="bottom">
+            <div class="badge">✅ Membre actif ${new Date().getFullYear()}</div>
+            <div style="font-size:9px;opacity:0.7">Expire: 31/08/${new Date().getFullYear()+1}</div>
+            </div></div></body></html>`
+            const w = window.open('','_blank')
+            if(w){w.document.write(html);w.document.close();setTimeout(()=>w.print(),500)}
+          }}
+          className="flex items-center gap-2 text-sm bg-vert text-white px-4 py-2 rounded-lg font-semibold hover:bg-vert-700 transition-colors flex-shrink-0">
+            🪪 Télécharger
+          </button>
         </div>
 
         {/* Profil */}
