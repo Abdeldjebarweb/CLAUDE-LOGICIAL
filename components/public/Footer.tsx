@@ -10,8 +10,8 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xl">
-                ☪
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-white flex-shrink-0">
+                <img src="https://i.ibb.co/LDtrRVPK/Whats-App-Image-2026-04-25-at-18-53-30.jpg" alt="Logo AEAB" className="w-full h-full object-contain" />
               </div>
               <div>
                 <span className="font-heading font-bold text-lg block">AEAB</span>
