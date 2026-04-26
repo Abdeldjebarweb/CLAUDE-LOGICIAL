@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import dynamic from 'next/dynamic'
+const AdminStats = dynamic(() => import('./stats'), { ssr: false })
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Users, HelpCircle, Mail, AlertTriangle, Plus, CheckSquare, BarChart2, TrendingUp, Calendar, Download } from 'lucide-react'
@@ -201,6 +203,9 @@ export default function AdminDashboard() {
           {recentMessages.length === 0 && <p className="text-sm text-gray-400 py-4">Aucun message</p>}
         </div>
       </div>
+
+      {/* Graphiques statistiques */}
+      <AdminStats />
 
       {/* Export données */}
       <div className="bg-white rounded-xl border p-5">
