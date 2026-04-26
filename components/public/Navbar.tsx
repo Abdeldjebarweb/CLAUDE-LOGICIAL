@@ -64,22 +64,26 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) =>
               link.children ? (
-                <div key={link.label} className="relative"
-                  onMouseEnter={() => setDropdown(link.label)}
-                  onMouseLeave={() => setDropdown(null)}>
-                  <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 hover:text-vert rounded-lg hover:bg-vert-50 transition-all">
+                <div key={link.label} className="relative">
+                  <button
+                    onClick={() => setDropdown(dropdown === link.label ? null : link.label)}
+                    className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 hover:text-vert rounded-lg hover:bg-vert-50 transition-all">
                     {link.label}
-                    <ChevronDown className="w-3.5 h-3.5" />
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${dropdown === link.label ? 'rotate-180' : ''}`} />
                   </button>
                   {dropdown === link.label && (
-                    <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[200px] animate-fade-in-up">
-                      {link.children.map((child) => (
-                        <Link key={child.href} href={child.href}
-                          className="block px-4 py-2.5 text-sm text-gray-700 hover:text-vert hover:bg-vert-50 transition-colors">
-                          {child.label}
-                        </Link>
-                      ))}
-                    </div>
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setDropdown(null)} />
+                      <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[220px] z-20 animate-fade-in-up">
+                        {link.children.map((child) => (
+                          <Link key={child.href} href={child.href}
+                            onClick={() => setDropdown(null)}
+                            className="block px-4 py-2.5 text-sm text-gray-700 hover:text-vert hover:bg-vert-50 transition-colors">
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </>
                   )}
                 </div>
               ) : (
