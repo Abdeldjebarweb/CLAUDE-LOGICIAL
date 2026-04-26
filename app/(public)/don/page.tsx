@@ -128,8 +128,8 @@ export default function DonPage() {
                       </div>
                     </div>
 
-                    <a href="https://www.paypal.com/donate" target="_blank" rel="noopener noreferrer"
-                      className="w-full border-2 border-blue-400 text-blue-600 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
+                    <a href="https://www.helloasso.com/associations/association-des-etudiants-algeriens-de-bordeaux" target="_blank" rel="noopener noreferrer"
+                      className="w-full border-2 border-[#49c885] text-[#49c885] py-3 rounded-xl font-bold hover:bg-green-50 transition-colors flex items-center justify-center gap-2">
                       <ExternalLink className="w-4 h-4" /> Don via PayPal
                     </a>
                   </div>
