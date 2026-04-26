@@ -42,8 +42,6 @@ export default function ContactUnifiePage() {
   const [dateNaissance, setDateNaissance] = useState('')
   const [villeNaissance, setVilleNaissance] = useState('')
   const [paysNaissance, setPaysNaissance] = useState('')
-  const [dateNaissance, setDateNaissance] = useState('')
-  const [villeNaissance, setVilleNaissance] = useState('')
   const [institution, setInstitution] = useState('')
   const [filiere, setFiliere] = useState('')
   const [situation, setSituation] = useState('')
@@ -119,8 +117,6 @@ export default function ContactUnifiePage() {
           date_naissance: dateNaissance,
           ville_naissance: villeNaissance,
           pays_naissance: paysNaissance,
-          date_naissance: dateNaissance,
-          ville_naissance: villeNaissance,
           institution,
           field: filiere,
           situation,
@@ -231,18 +227,9 @@ export default function ContactUnifiePage() {
                     <div><label className="form-label">Filière</label><input className="form-input" value={filiere} onChange={e => setFiliere(e.target.value)} /></div>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <label className="form-label">Date de naissance *</label>
-                      <input type="date" required className="form-input" value={dateNaissance} onChange={e => setDateNaissance(e.target.value)} />
-                    </div>
-                    <div>
-                      <label className="form-label">Ville de naissance *</label>
-                      <input required className="form-input" placeholder="Ex: Alger, Oran..." value={villeNaissance} onChange={e => setVilleNaissance(e.target.value)} />
-                    </div>
-                    <div>
-                      <label className="form-label">Pays de naissance *</label>
-                      <input required className="form-input" placeholder="Ex: Algérie" value={paysNaissance} onChange={e => setPaysNaissance(e.target.value)} />
-                    </div>
+                    <div><label className="form-label">Date de naissance *</label><input type="date" required className="form-input" value={dateNaissance} onChange={e => setDateNaissance(e.target.value)} /></div>
+                    <div><label className="form-label">Ville de naissance *</label><input required className="form-input" placeholder="Ex: Alger..." value={villeNaissance} onChange={e => setVilleNaissance(e.target.value)} /></div>
+                    <div><label className="form-label">Pays de naissance *</label><input required className="form-input" placeholder="Ex: Algérie" value={paysNaissance} onChange={e => setPaysNaissance(e.target.value)} /></div>
                   </div>
                   <div><label className="form-label">Situation</label><input className="form-input" placeholder="Ex: nouvel arrivant..." value={situation} onChange={e => setSituation(e.target.value)} /></div>
                   <div className="grid grid-cols-2 gap-4">
