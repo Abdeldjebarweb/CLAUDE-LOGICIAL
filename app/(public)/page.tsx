@@ -8,7 +8,7 @@ import { ArrowRight, Heart, Users, Calendar, BookOpen, HandHeart, Star, MapPin, 
 const testimonials = [
   { nom: "Yasmine B.", texte: "L'AEAB m'a aidée à trouver un logement dès mon arrivée de Bordeaux. Sans eux, j'aurais été perdue.", role: "Étudiante en médecine" },
   { nom: "Karim M.", texte: "Grâce à l'association, j'ai rencontré des amis formidables et je me suis vraiment intégré de Bordeaux.", role: "Étudiant en informatique" },
-  { nom: "Sarah A.", texte: "Les événements organisés par l'AEAB sont toujours super ! C'est une vraie famille loin de chez nous.", role: "Étudiante en droit" },
+  { nom: "Isma A.", texte: "Les événements organisés par l'AEAB sont toujours super ! C'est une vraie famille loin de chez nous.", role: "Étudiante en droit" },
 ]
 
 const stats = [
