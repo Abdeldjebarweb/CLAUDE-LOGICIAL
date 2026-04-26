@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     default: 'AEAB – Association des Étudiants Algériens de Bordeaux',
     template: '%s – AEAB Bordeaux',
   },
-  description: 'Solidarité, entraide et accompagnement pour chaque étudiant algérien à Bordeaux. Adhésion, événements, aide logement et administrative.',
+  description: 'Solidarité, entraide et accompagnement pour chaque étudiant algérien de Bordeaux. Adhésion, événements, aide logement et administrative.',
   keywords: ['étudiants algériens', 'Bordeaux', 'association', 'aide', 'logement', 'entraide', 'algérien'],
   authors: [{ name: 'AEAB' }],
   openGraph: {
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: 'https://claude-logicial-84ll.vercel.app',
     siteName: 'AEAB – Association des Étudiants Algériens de Bordeaux',
     title: 'AEAB – Association des Étudiants Algériens de Bordeaux',
-    description: 'Solidarité, entraide et accompagnement pour les étudiants algériens à Bordeaux.',
+    description: 'Solidarité, entraide et accompagnement pour les étudiants algériens de Bordeaux.',
     images: [{
       url: 'https://i.ibb.co/LDtrRVPK/Whats-App-Image-2026-04-25-at-18-53-30.jpg',
       width: 1200,
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'AEAB – Association des Étudiants Algériens de Bordeaux',
-    description: 'Solidarité, entraide et accompagnement pour les étudiants algériens à Bordeaux.',
+    description: 'Solidarité, entraide et accompagnement pour les étudiants algériens de Bordeaux.',
   },
   robots: {
     index: true,
