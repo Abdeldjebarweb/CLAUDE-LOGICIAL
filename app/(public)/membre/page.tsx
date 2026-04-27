@@ -213,13 +213,14 @@ export default function PortailMembrePage() {
       bio: sanitize(editForm.bio || '').slice(0, 300),
       visible_annuaire: !!editForm.visible_annuaire,
     }
-    const { data } = await supabase
+    const { data, error: saveErr } = await supabase
       .from('membre_accounts')
       .update(safe)
       .eq('id', user.id)
       .select()
       .maybeSingle()
     setLoading(false)
+    if (saveErr) { setError('Erreur sauvegarde: ' + saveErr.message); return }
     if (data) { setProfile(data); setEditing(false) }
   }
 
