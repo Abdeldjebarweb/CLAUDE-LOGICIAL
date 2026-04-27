@@ -20,7 +20,6 @@ const links = [
   { href: '/admin/equipe', label: 'Équipe', icon: Users },
   { href: '/admin/partenaires', label: 'Partenaires', icon: Handshake },
   { href: '/admin/galerie', label: 'Galerie', icon: Image },
-  { href: '/admin/adhesions', label: 'Adhésions', icon: UserPlus },
   { href: '/admin/demandes', label: "Demandes d'aide", icon: HelpCircle },
   { href: '/admin/dons', label: 'Dons', icon: Heart },
   { href: '/admin/messages', label: 'Messages', icon: Mail },
