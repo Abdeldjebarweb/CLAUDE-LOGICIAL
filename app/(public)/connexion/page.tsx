@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Loader2, Shield, User } from 'lucide-react'
@@ -12,6 +12,18 @@ export default function ConnexionPage() {
   const [showPwd, setShowPwd] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Rediriger si déjà connecté
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session?.user) return
+      const { data: adminData } = await supabase
+        .from('admin_emails').select('email')
+        .eq('email', session.user.email).maybeSingle()
+      if (adminData) router.push('/admin')
+      else router.push('/membre')
+    })
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
