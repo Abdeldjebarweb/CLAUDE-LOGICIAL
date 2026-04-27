@@ -26,14 +26,14 @@ export default async function EquipePage() {
       </section>
 
       {/* Bureau */}
-      <section className="py-16 bg-white">
+      {bureau.length > 0 && <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <span className="text-sm font-semibold text-rouge uppercase tracking-wider">Direction</span>
             <h2 className="font-heading text-3xl font-bold text-gray-900 mt-2">Le bureau</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {(bureau.length > 0 ? bureau : team || []).slice(0, 4).map((m: any) => (
+            {bureau.slice(0, 4).map((m: any) => (
               <div key={m.id} className="text-center group">
                 <div className="w-32 h-32 mx-auto rounded-2xl bg-vert-100 overflow-hidden mb-4 shadow-lg group-hover:shadow-xl transition-shadow">
                   {m.photo_url
@@ -52,7 +52,7 @@ export default async function EquipePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* Autres membres */}
       {autres.length > 0 && (
