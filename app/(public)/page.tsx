@@ -53,7 +53,16 @@ export default function HomePage() {
   return (
     <>
       {/* ═══════ HERO ═══════ */}
-      <section className="hero-gradient relative overflow-hidden">
+      <section className="relative overflow-hidden">
+        {/* Photo de Bordeaux en arrière-plan */}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1589210438714-6d7e16a4b9b5?w=1600&auto=format&fit=crop&q=80"
+            alt="Bordeaux miroir d'eau"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-vert/80" />
+        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-36 relative">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 mb-6">
