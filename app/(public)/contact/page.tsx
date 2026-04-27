@@ -29,6 +29,7 @@ const DOMAINES = [
 export default function ContactUnifiePage() {
   const [type, setType] = useState('contact')
   const [loading, setLoading] = useState(false)
+  const [lastSubmit, setLastSubmit] = useState(0)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
