@@ -47,8 +47,7 @@ export default function AdminNewsletter() {
     setSending(true)
 
     // Enregistrer la campagne
-    const { error: _supaErr } = await supabase.from('newsletter_campagnes').insert([{
-    if (_supaErr) console.error("Supabase error:", _supaErr.message)
+    await supabase.from('newsletter_campagnes').insert([{
       sujet: form.sujet,
       contenu: form.contenu,
       nb_envoyes: subscribers.filter(s => s.statut === 'actif').length,
