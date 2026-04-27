@@ -58,6 +58,17 @@ export default function VotesPage() {
 
   const handleVote = async (voteId: string) => {
     if (!userEmail || !reponses[voteId]) return
+    // Vérifier que l'email existe dans membre_accounts
+    if (!emailSaisi) return
+    const { data: membre } = await supabase
+      .from('membre_accounts')
+      .select('id')
+      .eq('email', userEmail)
+      .single()
+    if (!membre) {
+      alert("Cet email n'est pas associé à un compte membre AEAB.")
+      return
+    }
     setVotingId(voteId)
     const { error } = await supabase.from('vote_reponses').insert([{
       vote_id: voteId,
