@@ -290,19 +290,6 @@ export default function PortailMembrePage() {
           </div>
         )}
 
-        {/* Statut adhésion */}
-        <div className="bg-white rounded-xl border p-5 flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <p className="text-sm text-gray-500 mb-1">Statut d&apos;adhésion</p>
-            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${statutColors[profile?.statut_adhesion || 'non_membre']}`}>
-              {statutLabels[profile?.statut_adhesion || 'non_membre']}
-            </span>
-          </div>
-          {profile?.statut_adhesion === 'non_membre' && (
-            <a href="/adhesion" className="btn-primary text-sm">Faire une demande d&apos;adhésion →</a>
-          )}
-        </div>
-
         {/* Actions rapides */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
