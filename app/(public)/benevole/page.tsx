@@ -21,6 +21,7 @@ const domainesOptions = [
 export default function BenevolePage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
   const [user, setUser] = useState<any>(null)
   const [checkingAuth, setCheckingAuth] = useState(true)
   const [form, setForm] = useState({
@@ -55,9 +56,13 @@ export default function BenevolePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    await supabase.from('benevoles').insert([{ ...form, statut: 'nouveau' }])
+    const { error } = await supabase.from('benevoles').insert([{ ...form, statut: 'nouveau' }])
     setLoading(false)
-    setSuccess(true)
+    if (error) {
+      setErrorMsg("Erreur lors de l'envoi. Veuillez réessayer ou contacter associationeab@gmail.com")
+    } else {
+      setSuccess(true)
+    }
   }
 
   // Chargement
