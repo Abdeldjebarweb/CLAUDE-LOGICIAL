@@ -57,7 +57,7 @@ export default function HomePage() {
         {/* Photo de Bordeaux en arrière-plan */}
         <div className="absolute inset-0">
           <img
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Bordeaux_place_de_la_bourse.jpg/1280px-Bordeaux_place_de_la_bourse.jpg"
+            src="https://i.ibb.co/Nk9fz7R/Gemini-Generated-Image-53x4fk53x4fk53x4.png"
             alt="Bordeaux miroir d'eau"
             className="w-full h-full object-cover"
           />
