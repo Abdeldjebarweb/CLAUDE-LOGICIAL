@@ -35,8 +35,7 @@ export default function AdminPublicites() {
   }, [])
 
   const updateStatut = async (id: string, statut: string) => {
-    const { error: _supaErr } = await supabase.from('publicites').update({ statut, date_debut: statut === 'valide' ? new Date().toISOString() : null }).eq('id', id)
-    if (_supaErr) console.error("Supabase error:", _supaErr.message)
+    await supabase.from('publicites').update({ statut, date_debut: statut === 'valide' ? new Date().toISOString() : null }).eq('id', id)
     if (sel?.id === id) setSel((p: any) => ({ ...p, statut }))
     load()
   }
