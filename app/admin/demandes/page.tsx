@@ -60,7 +60,8 @@ export default function AdminDemandes() {
   const loadMessages = async (demandeId: string) => {
     const { data } = await supabase.from('messages_internes').select('*').eq('demande_id', demandeId).order('created_at', { ascending: true })
     setMessages(data || [])
-    const { error: _mutErr } = await supabase.from('help_requests').update({ nouveau_message: false }).eq('id', demandeId)
+    const { error: _supaErr } = await supabase.from('help_requests').update({ nouveau_message: false }).eq('id', demandeId)
+    if (_supaErr) console.error("Supabase error:", _supaErr.message)
   }
 
   const openDemande = async (r: any) => {
@@ -96,9 +97,7 @@ export default function AdminDemandes() {
 <head>
 <meta charset="UTF-8">
 <style>
-  body { font-family: 'Times New Roman', serif;
-
-    if (_mutErr) { console.error("Supabase error:", _mutErr.message) } font-size: 13pt; line-height: 1.8; color: #000; margin: 0; padding: 40px; }
+  body { font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.8; color: #000; margin: 0; padding: 40px; }
   .container { max-width: 680px; margin: 0 auto; padding: 40px; border: 2px solid #1a3a6b; }
   h1 { text-align: center; color: #1a3a6b; font-size: 18pt; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
   .signature { margin-top: 50px; text-align: right; }
@@ -164,7 +163,8 @@ export default function AdminDemandes() {
   }
 
   const upd = async (id: string, status: string) => {
-    const { error: _mutErr } = await supabase.from('help_requests').update({ status }).eq('id', id)
+    const { error: _supaErr } = await supabase.from('help_requests').update({ status }).eq('id', id)
+    if (_supaErr) console.error("Supabase error:", _supaErr.message)
     if (sel?.id === id) setSel((p: any) => ({ ...p, status }))
     load()
   }
@@ -180,9 +180,7 @@ export default function AdminDemandes() {
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h2 className="text-lg font-bold">Demandes d&apos;
-
-    if (_mutErr) { console.error("Supabase error:", _mutErr.message) }aide ({items.length})</h2>
+          <h2 className="text-lg font-bold">Demandes d&apos;aide ({items.length})</h2>
           {counts.new > 0 && <p className="text-sm text-rouge font-semibold">⚠️ {counts.new} nouvelle(s)</p>}
         </div>
       </div>
