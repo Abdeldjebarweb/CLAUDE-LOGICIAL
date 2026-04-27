@@ -61,15 +61,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return false
     }
 
-    // Vérifier que l'utilisateur est bien un admin (pas dans membre_accounts)
-    const { data: membreData } = await supabase
-      .from('membre_accounts')
-      .select('id')
-      .eq('id', user.id)
-      .single()
+    // Vérifier que l'utilisateur est bien dans la table admin_emails
+    const { data: adminData } = await supabase
+      .from('admin_emails')
+      .select('email')
+      .eq('email', user.email)
+      .maybeSingle()
 
-    if (membreData) {
-      // C'est un membre, pas un admin
+    if (!adminData) {
+      // Pas dans la table admin_emails → accès refusé
       await supabase.auth.signOut()
       router.push('/auth/login?reason=unauthorized')
       return false
