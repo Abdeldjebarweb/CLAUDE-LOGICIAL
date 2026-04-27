@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Devenir bénévole',
-  description: 'Rejoignez l'équipe bénévole de l'AEAB Bordeaux.',
+  title: "Devenir benevole",
+  description: "Rejoignez l'equipe benevole de l'AEAB Bordeaux.",
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
