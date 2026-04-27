@@ -532,10 +532,10 @@ export default function PortailMembrePage() {
               className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'login' ? 'bg-white shadow text-vert' : 'text-gray-500'}`}>
               <LogIn className="w-4 h-4 inline mr-1" /> Connexion
             </button>
-            <button onClick={() => { setMode('register'); setError('') }}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'register' ? 'bg-white shadow text-vert' : 'text-gray-500'}`}>
+            <a href="/adhesion"
+              className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-gray-500 hover:text-vert text-center">
               <UserPlus className="w-4 h-4 inline mr-1" /> Créer un compte
-            </button>
+            </a>
           </div>
         )}
 
