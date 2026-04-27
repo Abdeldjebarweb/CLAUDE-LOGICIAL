@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: "Recherche",
-  description: "Recherchez sur le site de l'AEAB Bordeaux.",
+  description: "Recherchez sur le site de lAEAB Bordeaux.",
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
