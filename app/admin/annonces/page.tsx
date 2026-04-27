@@ -36,7 +36,7 @@ export default function AdminAnnonces() {
   }
 
   const updateStatut = async (id: string, statut: string) => {
-    await supabase.from('annonces_emploi').update({ statut }).eq('id', id)
+    const { error: _mutErr } = await supabase.from('annonces_emploi').update({ statut }).eq('id', id)
     load()
   }
 
@@ -192,7 +192,9 @@ export default function AdminAnnonces() {
             {annonces.length === 0 && (
               <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">
                 <Briefcase className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                Aucune annonce — cliquez &quot;Nouvelle annonce&quot; pour en créer une
+                Aucune annonce — cliquez &quot;
+
+    if (_mutErr) { console.error("Supabase error:", _mutErr.message) }Nouvelle annonce&quot; pour en créer une
               </td></tr>
             )}
           </tbody>
