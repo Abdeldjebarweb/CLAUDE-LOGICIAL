@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { FileText, Download, Search, Folder , Lock } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import { FileText, Download, Search, Folder, Lock } from 'lucide-react'
 
 const docs = [
   {
@@ -58,12 +59,17 @@ const typeColors: Record<string, string> = {
 }
 
 export default function BibliothequeePage() {
-  // Protection membre
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [checkingAuth, setCheckingAuth] = useState(true)
-
   const [search, setSearch] = useState('')
   const [openCat, setOpenCat] = useState<string | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session?.user)
+      setCheckingAuth(false)
+    })
+  }, [])
 
   const filtered = docs.map(cat => ({
     ...cat,
@@ -95,7 +101,7 @@ export default function BibliothequeePage() {
         <p className="text-gray-500 mb-6">Connectez-vous ou créez un compte membre pour accéder à cette page.</p>
         <div className="flex gap-3 justify-center flex-wrap">
           <a href="/connexion" className="btn-primary">Se connecter</a>
-          <a href="/membre" className="btn-outline">Créer un compte</a>
+          <a href="/adhesion" className="btn-outline">Créer un compte</a>
         </div>
       </div>
     </div>
@@ -117,7 +123,7 @@ export default function BibliothequeePage() {
 
       <section className="py-10 max-w-4xl mx-auto px-4">
         <div className="bg-vert-50 border border-vert-200 rounded-xl p-4 mb-6 text-sm text-vert">
-          💡 Ces documents sont fournis à titre informatif. Pour obtenir un document personnalisé, 
+          💡 Ces documents sont fournis à titre informatif. Pour obtenir un document personnalisé,
           <a href="/contact" className="font-semibold underline ml-1">contactez l&apos;AEAB</a>.
         </div>
 
