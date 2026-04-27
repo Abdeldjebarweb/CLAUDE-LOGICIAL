@@ -7,7 +7,7 @@ export default function MentionsLegalesPage() {
         <h1 className="font-heading text-3xl font-bold text-gray-900 mb-8">Mentions légales</h1>
         <div className="prose prose-gray max-w-none space-y-6 text-gray-600">
           <h3 className="font-heading font-bold text-gray-900">Éditeur du site</h3>
-          <p>Association des Étudiants Algériens à Bordeaux (AEAB)<br/>Association loi 1901<br/>Siège social : Bordeaux, France<br/>Email : contact@aeab.fr</p>
+          <p>Association des Étudiants Algériens de Bordeaux (AEAB)<br/>Association loi 1901<br/>SIREN : 881 684 203 — SIRET : 881 684 203 00014<br/>Siège social : Bordeaux<br/>Email : associationeab@gmail.com</p>
           <h3 className="font-heading font-bold text-gray-900">Responsable de publication</h3>
           <p>Le Président de l&apos;AEAB</p>
           <h3 className="font-heading font-bold text-gray-900">Hébergement</h3>
