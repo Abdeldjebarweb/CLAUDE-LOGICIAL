@@ -324,7 +324,7 @@ export default function PortailMembrePage() {
           </div>
           <button onClick={() => {
             const avatarHtml = profile?.avatar_url
-              ? `<img src="${profile.avatar_url}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.4);flex-shrink:0;" />`
+              ? `<img src="${profile.avatar_url}" alt="Photo de profil" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.4);flex-shrink:0;" />`
               : `<div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold;flex-shrink:0;">${(profile?.prenom?.[0] || '') + (profile?.nom?.[0] || '')}</div>`
             const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:30px;font-family:Arial;}
             .card{width:380px;height:210px;background:linear-gradient(135deg,#1a5c38,#0d3d24);border-radius:12px;padding:20px;color:white;display:flex;flex-direction:column;justify-content:space-between;}
