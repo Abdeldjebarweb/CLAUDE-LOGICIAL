@@ -67,7 +67,6 @@ export default function PortailMembrePage() {
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !user) {
-      console.log('Pas de fichier ou pas de user:', { file, user })
       return
     }
 
@@ -85,13 +84,10 @@ export default function PortailMembrePage() {
 
     const ext = file.name.split('.').pop()
     const filePath = `${user.id}/avatar.${ext}`
-    console.log('Upload vers:', filePath)
 
     const { error: uploadError } = await supabase.storage
       .from('avatars')
       .upload(filePath, file, { upsert: true })
-
-    console.log('Résultat upload:', uploadError)
 
     if (uploadError) {
       setError('Erreur upload: ' + uploadError.message)
@@ -103,16 +99,12 @@ export default function PortailMembrePage() {
       .from('avatars')
       .getPublicUrl(filePath)
 
-    console.log('URL publique:', publicUrl)
-
     const { data, error: dbError } = await supabase
       .from('membre_accounts')
       .update({ avatar_url: publicUrl })
       .eq('id', user.id)
       .select()
       .single()
-
-    console.log('Résultat DB:', { data, dbError })
 
     if (dbError) setError('Erreur DB: ' + dbError.message)
     if (data) setProfile(data)
