@@ -79,8 +79,7 @@ export default function AdhesionPage() {
         niveau: form.level,
         ville: sanitize(form.city),
         visible_annuaire: form.visible_annuaire,
-        statut_adhesion: 'en_attente',
-        use_supabase_auth: true,
+        statut_adhesion: 'membre_actif',
       }])
 
       // 3. Créer la demande d'adhésion
