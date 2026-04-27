@@ -29,7 +29,9 @@ export default function CovoituragePage() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsLoggedIn(!!session?.user)
       setCheckingAuth(false)
-    }) load() }, [])
+    })
+    load()
+  }, [])
 
   const filtered = trajets.filter(t => {
     const q = search.toLowerCase()
