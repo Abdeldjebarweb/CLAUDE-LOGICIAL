@@ -17,8 +17,14 @@ export default function AdminUtilisateurs() {
       supabase.from('membre_accounts').select('id, prenom, nom, email, statut_adhesion, created_at').order('created_at', { ascending: false }),
       supabase.from('admin_emails').select('email'),
     ])
-    setMembres(m || [])
-    setAdmins((a || []).map((x: any) => x.email))
+    const adminEmails = (a || []).map((x: any) => x.email)
+    // Ajouter les admins sans compte membre
+    const membreEmails = (m || []).map((x: any) => x.email)
+    const adminOnlyUsers = adminEmails
+      .filter(email => !membreEmails.includes(email))
+      .map(email => ({ id: email, email, prenom: '', nom: 'Admin', statut_adhesion: 'membre_actif', created_at: null }))
+    setMembres([...(m || []), ...adminOnlyUsers])
+    setAdmins(adminEmails)
     setLoading(false)
   }
 
