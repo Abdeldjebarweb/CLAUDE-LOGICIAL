@@ -50,6 +50,7 @@ export default function ProfessionnelsPage() {
   })
 
   useEffect(() => {
+
     supabase.from('publicites').select('*').eq('statut', 'valide')
       .order('forfait', { ascending: false })
       .order('created_at', { ascending: false })
@@ -75,6 +76,7 @@ export default function ProfessionnelsPage() {
     setShowForm(false)
     setTimeout(() => setSuccess(false), 6000)
   }
+
 
   return (
     <div className="min-h-screen bg-gray-50">
