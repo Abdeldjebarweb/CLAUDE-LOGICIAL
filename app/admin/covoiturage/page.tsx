@@ -41,7 +41,7 @@ export default function AdminCovoiturage() {
 
   const updateStatut = async (id: string, statut: string) => {
     const actif = statut === 'valide'
-    await supabase.from('covoiturages').update({ statut, actif }).eq('id', id)
+    const { error: _mutErr } = await supabase.from('covoiturages').update({ statut, actif }).eq('id', id)
     if (sel?.id === id) setSel((prev: any) => ({ ...prev, statut, actif }))
     load()
   }
@@ -169,7 +169,9 @@ export default function AdminCovoiturage() {
               </div>
 
               {sel.commentaire && (
-                <p className="bg-gray-50 p-3 rounded-lg italic text-gray-600">&ldquo;{sel.commentaire}&rdquo;</p>
+                <p className="bg-gray-50 p-3 rounded-lg italic text-gray-600">&ldquo;
+
+    if (_mutErr) { console.error("Supabase error:", _mutErr.message) }{sel.commentaire}&rdquo;</p>
               )}
 
               <p className="text-xs text-gray-400">Soumis le {new Date(sel.created_at).toLocaleDateString('fr-FR')}</p>
