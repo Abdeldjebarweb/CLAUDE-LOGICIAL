@@ -10,10 +10,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [attempts, setAttempts] = useState(0)
+  const [locked, setLocked] = useState(false)
   const [error, setError] = useState('')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (locked) return
     setLoading(true)
     setError('')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
