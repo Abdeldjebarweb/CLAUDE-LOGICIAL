@@ -38,7 +38,8 @@ export default function ConnexionPage() {
       .single()
 
     if (!membreData) {
-      // Pas de profil membre → c'est un admin
+      // Pas de profil membre → vérifier que c'est bien un compte admin connu
+      // (un compte sans membre_accounts = admin car créé manuellement par Supabase)
       router.push('/admin')
     } else {
       // Profil membre trouvé → espace membre
