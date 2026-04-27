@@ -178,8 +178,7 @@ export default function PortailMembrePage() {
         filiere: sanitize(registerForm.filiere),
         niveau: registerForm.niveau,
         visible_annuaire: registerForm.visible_annuaire,
-        statut_adhesion: 'non_membre',
-        use_supabase_auth: true,
+        statut_adhesion: 'membre_actif',
       }])
     }
     setLoading(false)
