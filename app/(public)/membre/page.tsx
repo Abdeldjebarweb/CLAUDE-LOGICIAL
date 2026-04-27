@@ -331,18 +331,27 @@ export default function PortailMembrePage() {
             <p className="text-xs text-gray-500 mt-0.5">Téléchargez votre carte membre officielle en PDF</p>
           </div>
           <button onClick={() => {
+            const avatarHtml = profile?.avatar_url
+              ? `<img src="${profile.avatar_url}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.4);flex-shrink:0;" />`
+              : `<div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold;flex-shrink:0;">${(profile?.prenom?.[0] || '') + (profile?.nom?.[0] || '')}</div>`
             const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:30px;font-family:Arial;}
-            .card{width:350px;height:200px;background:linear-gradient(135deg,#1a5c38,#0d3d24);border-radius:12px;padding:20px;color:white;display:flex;flex-direction:column;justify-content:space-between;}
-            .title{font-size:10px;letter-spacing:2px;opacity:0.8;}
-            .name{font-size:22px;font-weight:bold;margin-top:8px;}
-            .email{font-size:10px;opacity:0.7;margin-top:2px;}
+            .card{width:380px;height:210px;background:linear-gradient(135deg,#1a5c38,#0d3d24);border-radius:12px;padding:20px;color:white;display:flex;flex-direction:column;justify-content:space-between;}
+            .top{display:flex;align-items:center;gap:14px;}
+            .info{flex:1;}
+            .title{font-size:9px;letter-spacing:2px;opacity:0.7;margin-bottom:6px;}
+            .name{font-size:20px;font-weight:bold;line-height:1.2;}
+            .email{font-size:10px;opacity:0.65;margin-top:4px;}
             .bottom{display:flex;justify-content:space-between;align-items:flex-end;}
             .badge{background:rgba(255,255,255,0.2);padding:4px 10px;border-radius:20px;font-size:10px;}
             @media print{body{padding:0;}}</style></head>
             <body><div class="card">
-            <div><div class="title">AEAB — Association des Étudiants Algériens de Bordeaux</div>
+            <div class="top">
+            ${avatarHtml}
+            <div class="info">
+            <div class="title">AEAB — Association des Étudiants Algériens de Bordeaux</div>
             <div class="name">${profile?.prenom || ''} ${profile?.nom || ''}</div>
-            <div class="email">${user?.email || ''}</div></div>
+            <div class="email">${user?.email || ''}</div>
+            </div></div>
             <div class="bottom">
             <div class="badge">✅ Membre actif ${new Date().getFullYear()}</div>
             <div style="font-size:9px;opacity:0.7">Expire: 31/08/${new Date().getFullYear() + 1}</div>
