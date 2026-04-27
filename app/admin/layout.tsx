@@ -61,6 +61,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return false
     }
 
+    // Vérifier que l'utilisateur est bien un admin (pas dans membre_accounts)
+    const { data: membreData } = await supabase
+      .from('membre_accounts')
+      .select('id')
+      .eq('id', user.id)
+      .single()
+
+    if (membreData) {
+      // C'est un membre, pas un admin
+      await supabase.auth.signOut()
+      router.push('/auth/login?reason=unauthorized')
+      return false
+    }
+
     setAdminEmail(user.email || '')
     return true
   }, [router, lastActivity])
