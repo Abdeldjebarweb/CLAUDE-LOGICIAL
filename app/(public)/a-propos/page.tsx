@@ -23,7 +23,7 @@ export default async function AProposPage() {
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h1 className="font-heading text-4xl lg:text-5xl font-bold text-white mb-4">À propos de l&apos;AEAB</h1>
           <p className="text-white/80 text-lg max-w-2xl mx-auto">
-            L&apos;Association des Étudiants Algériens de Bordeaux, un espace de solidarité et d&apos;entraide depuis plus de 5 ans.
+            L&apos;Association des Étudiants Algériens de Bordeaux, un espace de solidarité et d&apos;entraide depuis plus de 10 ans.
           </p>
         </div>
         <div className="absolute bottom-0 left-0 right-0">
@@ -42,14 +42,14 @@ export default async function AProposPage() {
               <h2 className="font-heading text-3xl font-bold text-gray-900 mt-2 mb-4">Nés d&apos;un besoin, portés par une vision</h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>L&apos;AEAB est née de la volonté d&apos;un groupe d&apos;étudiants algériens de Bordeaux de créer un espace d&apos;entraide et de solidarité pour leurs compatriotes arrivant dans cette ville.</p>
-                <p>Depuis sa création, l&apos;association n&apos;a cessé de grandir, accueillant chaque année de nouveaux membres et développant des services toujours plus adaptés aux besoins des étudiants.</p>
+                <p>Fondée le 18 juillet 2013 et déclarée en préfecture de la Gironde, l&apos;association n&apos;a cessé de grandir, accueillant chaque année de nouveaux membres et développant des services toujours plus adaptés aux besoins des étudiants.</p>
                 <p>Aujourd&apos;hui, l&apos;AEAB compte plus de 200 membres actifs et organise plus de 24 événements par an, allant des soirées culturelles aux ateliers pratiques en passant par les sorties touristiques.</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {[
                 { value: '200+', label: 'Membres actifs' },
-                { value: '5+', label: 'Années d\'existence' },
+                { value: '10+', label: 'Années d\'existence' },
                 { value: '24+', label: 'Événements/an' },
                 { value: '150+', label: 'Demandes traitées' },
               ].map((s, i) => (
