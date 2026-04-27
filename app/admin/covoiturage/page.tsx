@@ -41,8 +41,7 @@ export default function AdminCovoiturage() {
 
   const updateStatut = async (id: string, statut: string) => {
     const actif = statut === 'valide'
-    const { error: _supaErr } = await supabase.from('covoiturages').update({ statut, actif }).eq('id', id)
-    if (_supaErr) console.error("Supabase error:", _supaErr.message)
+    await supabase.from('covoiturages').update({ statut, actif }).eq('id', id)
     if (sel?.id === id) setSel((prev: any) => ({ ...prev, statut, actif }))
     load()
   }
