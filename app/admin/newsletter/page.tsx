@@ -47,7 +47,7 @@ export default function AdminNewsletter() {
     setSending(true)
 
     // Enregistrer la campagne
-    await supabase.from('newsletter_campagnes').insert([{
+    const { error: _mutErr } = await supabase.from('newsletter_campagnes').insert([{
       sujet: form.sujet,
       contenu: form.contenu,
       nb_envoyes: subscribers.filter(s => s.statut === 'actif').length,
@@ -136,7 +136,9 @@ export default function AdminNewsletter() {
           {sent && (
             <div className="flex items-center gap-3 bg-vert-50 border border-vert-200 rounded-xl p-4 text-vert">
               <CheckCircle className="w-5 h-5" />
-              <span className="font-semibold text-sm">Newsletter enregistrée ! (Configurez Resend ou Mailchimp pour l&apos;envoi réel)</span>
+              <span className="font-semibold text-sm">Newsletter enregistrée ! (Configurez Resend ou Mailchimp pour l&apos;
+
+    if (_mutErr) { console.error("Supabase error:", _mutErr.message) }envoi réel)</span>
             </div>
           )}
 
