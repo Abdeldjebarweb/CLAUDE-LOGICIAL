@@ -19,6 +19,7 @@ const ATTESTATION = "Attestation d'hébergement"
 
 export default function AidePage() {
   const [loading, setLoading] = useState(false)
+  const [lastSubmit, setLastSubmit] = useState(0)
   const [success, setSuccess] = useState(false)
   const [uploadProgress, setUploadProgress] = useState('')
   const [form, setForm] = useState({
