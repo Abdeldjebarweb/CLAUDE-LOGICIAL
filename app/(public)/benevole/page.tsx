@@ -20,6 +20,7 @@ const domainesOptions = [
 
 export default function BenevolePage() {
   const [loading, setLoading] = useState(false)
+  const [lastSubmit, setLastSubmit] = useState(0)
   const [success, setSuccess] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [user, setUser] = useState<any>(null)
@@ -55,6 +56,12 @@ export default function BenevolePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const now = Date.now()
+    if (now - lastSubmit < 30000) {
+      setError('Veuillez attendre 30 secondes avant de renvoyer.')
+      return
+    }
+    setLastSubmit(now)
     setLoading(true)
     const { error } = await supabase.from('benevoles').insert([{ ...form, statut: 'nouveau' }])
     setLoading(false)
