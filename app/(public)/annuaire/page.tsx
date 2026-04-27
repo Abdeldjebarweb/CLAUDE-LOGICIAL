@@ -16,7 +16,7 @@ export default function AnnuairePage() {
     
 
     supabase.from('membre_accounts')
-      .select('id, prenom, nom, etablissement, filiere, niveau, ville, bio, photo_url, statut_adhesion')
+      .select('id, prenom, nom, etablissement, filiere, niveau, ville, bio, avatar_url, statut_adhesion')
       .eq('visible_annuaire', true)
       .eq('statut_adhesion', 'membre_actif')
       .order('prenom')
@@ -85,8 +85,8 @@ export default function AnnuairePage() {
                 <div key={m.id} className="card p-5 hover:-translate-y-1 transition-transform">
                   <div className="flex items-start gap-4">
                     <div className="w-14 h-14 rounded-full bg-vert-100 flex items-center justify-center text-vert text-xl font-heading font-bold flex-shrink-0 overflow-hidden">
-                      {m.photo_url ? (
-                        <img src={m.photo_url} alt={m.prenom} className="w-full h-full object-cover" />
+                      {m.avatar_url ? (
+                        <img src={m.avatar_url} alt={m.prenom} className="w-full h-full object-cover" />
                       ) : (
                         `${m.prenom?.[0]}${m.nom?.[0]}`
                       )}
