@@ -30,19 +30,18 @@ export default function ConnexionPage() {
       return
     }
 
-    // 2. Vérifier si c'est un admin (pas de ligne dans membre_accounts)
-    const { data: membreData } = await supabase
-      .from('membre_accounts')
-      .select('id, statut_adhesion')
-      .eq('id', data.user.id)
-      .single()
+    // 2. Vérifier si c'est un admin via la table admin_emails
+    const { data: adminData } = await supabase
+      .from('admin_emails')
+      .select('email')
+      .eq('email', data.user.email)
+      .maybeSingle()
 
-    if (!membreData) {
-      // Pas de profil membre → vérifier que c'est bien un compte admin connu
-      // (un compte sans membre_accounts = admin car créé manuellement par Supabase)
+    if (adminData) {
+      // Email trouvé dans admin_emails → admin
       router.push('/admin')
     } else {
-      // Profil membre trouvé → espace membre
+      // Pas admin → espace membre
       router.push('/membre')
     }
   }
