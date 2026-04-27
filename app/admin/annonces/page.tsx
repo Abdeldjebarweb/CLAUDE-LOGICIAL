@@ -36,8 +36,7 @@ export default function AdminAnnonces() {
   }
 
   const updateStatut = async (id: string, statut: string) => {
-    const { error: _supaErr } = await supabase.from('annonces_emploi').update({ statut }).eq('id', id)
-    if (_supaErr) console.error("Supabase error:", _supaErr.message)
+    await supabase.from('annonces_emploi').update({ statut }).eq('id', id)
     load()
   }
 
