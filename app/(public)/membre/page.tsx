@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import {
   User, LogIn, UserPlus, LogOut, FileText, Calendar,
-  Car, Eye, EyeOff, CheckCircle, Loader2, Edit, Save, Shield, CreditCard
+  Car, Eye, EyeOff, CheckCircle, Loader2, Edit, Save, Shield, Camera, X
 } from 'lucide-react'
 
 // Validation helpers
@@ -20,6 +20,8 @@ export default function PortailMembrePage() {
   const [showPwd, setShowPwd] = useState(false)
   const [editing, setEditing] = useState(false)
   const [resetSent, setResetSent] = useState(false)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [loginForm, setLoginForm] = useState({ email: '', password: '' })
   const [registerForm, setRegisterForm] = useState({
@@ -30,7 +32,6 @@ export default function PortailMembrePage() {
   const [editForm, setEditForm] = useState<any>({})
   const [forgotEmail, setForgotEmail] = useState('')
 
-  // Vérifier session au chargement
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
@@ -39,7 +40,6 @@ export default function PortailMembrePage() {
         setMode('dashboard')
       }
     })
-    // Écouter les changements d'auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser(session.user)
@@ -57,10 +57,84 @@ export default function PortailMembrePage() {
   const loadProfile = async (userId: string) => {
     const { data } = await supabase
       .from('membre_accounts')
-      .select('id, prenom, nom, telephone, etablissement, filiere, niveau, ville, bio, statut_adhesion, visible_annuaire')
+      .select('id, prenom, nom, telephone, etablissement, filiere, niveau, ville, bio, statut_adhesion, visible_annuaire, avatar_url')
       .eq('id', userId)
       .single()
     if (data) setProfile(data)
+  }
+
+  // Upload photo de profil
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user) return
+
+    // Vérifications
+    if (!file.type.startsWith('image/')) {
+      setError('Veuillez sélectionner une image.')
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setError('La photo ne doit pas dépasser 2 Mo.')
+      return
+    }
+
+    setUploadingPhoto(true)
+    setError('')
+
+    // Supprimer l'ancienne photo si elle existe
+    if (profile?.avatar_url) {
+      const oldPath = profile.avatar_url.split('/avatars/')[1]
+      if (oldPath) await supabase.storage.from('avatars').remove([oldPath])
+    }
+
+    // Upload nouvelle photo
+    const ext = file.name.split('.').pop()
+    const filePath = `${user.id}/avatar.${ext}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, { upsert: true })
+
+    if (uploadError) {
+      setError('Erreur lors de l\'upload. Réessayez.')
+      setUploadingPhoto(false)
+      return
+    }
+
+    // Récupérer l'URL publique
+    const { data: { publicUrl } } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath)
+
+    // Mettre à jour le profil
+    const { data } = await supabase
+      .from('membre_accounts')
+      .update({ avatar_url: publicUrl })
+      .eq('id', user.id)
+      .select()
+      .single()
+
+    if (data) setProfile(data)
+    setUploadingPhoto(false)
+  }
+
+  // Supprimer la photo
+  const handleRemovePhoto = async () => {
+    if (!user || !profile?.avatar_url) return
+    setUploadingPhoto(true)
+
+    const oldPath = profile.avatar_url.split('/avatars/')[1]
+    if (oldPath) await supabase.storage.from('avatars').remove([oldPath])
+
+    const { data } = await supabase
+      .from('membre_accounts')
+      .update({ avatar_url: null })
+      .eq('id', user.id)
+      .select()
+      .single()
+
+    if (data) setProfile(data)
+    setUploadingPhoto(false)
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -73,10 +147,7 @@ export default function PortailMembrePage() {
       password: loginForm.password,
     })
     setLoading(false)
-    if (err) {
-      // Message générique pour ne pas révéler si l'email existe
-      setError('Email ou mot de passe incorrect.')
-    }
+    if (err) setError('Email ou mot de passe incorrect.')
   }
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -91,7 +162,6 @@ export default function PortailMembrePage() {
     }
     setLoading(true)
 
-    // Créer compte Supabase Auth
     const { data: authData, error: authErr } = await supabase.auth.signUp({
       email: registerForm.email,
       password: registerForm.password,
@@ -101,7 +171,6 @@ export default function PortailMembrePage() {
     })
     if (authErr) { setError(authErr.message); setLoading(false); return }
 
-    // Créer profil dans membre_accounts
     if (authData.user) {
       await supabase.from('membre_accounts').insert([{
         id: authData.user.id,
@@ -172,12 +241,39 @@ export default function PortailMembrePage() {
   // Dashboard
   if (mode === 'dashboard' && user) return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
       <div className="bg-vert py-10 px-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl font-heading font-bold">
-              {profile?.prenom?.[0]}{profile?.nom?.[0]}
+            {/* Avatar avec bouton upload */}
+            <div className="relative group">
+              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl font-heading font-bold overflow-hidden border-2 border-white/30">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Photo de profil" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{profile?.prenom?.[0]}{profile?.nom?.[0]}</span>
+                )}
+              </div>
+              {/* Overlay upload au hover */}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingPhoto}
+                className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              >
+                {uploadingPhoto
+                  ? <Loader2 className="w-5 h-5 text-white animate-spin" />
+                  : <Camera className="w-5 h-5 text-white" />
+                }
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoUpload}
+              />
             </div>
+
             <div>
               <h1 className="font-heading text-2xl font-bold text-white">
                 Bonjour, {profile?.prenom || 'Membre'} !
@@ -192,6 +288,12 @@ export default function PortailMembrePage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+        {error && (
+          <div className="bg-rouge-50 border border-rouge-200 text-rouge text-sm p-3 rounded-lg">
+            ⚠️ {error}
+          </div>
+        )}
+
         {/* Statut adhésion */}
         <div className="bg-white rounded-xl border p-5 flex items-center justify-between flex-wrap gap-4">
           <div>
@@ -242,12 +344,12 @@ export default function PortailMembrePage() {
             <div class="email">${user?.email || ''}</div></div>
             <div class="bottom">
             <div class="badge">✅ Membre actif ${new Date().getFullYear()}</div>
-            <div style="font-size:9px;opacity:0.7">Expire: 31/08/${new Date().getFullYear()+1}</div>
+            <div style="font-size:9px;opacity:0.7">Expire: 31/08/${new Date().getFullYear() + 1}</div>
             </div></div></body></html>`
-            const w = window.open('','_blank')
-            if(w){w.document.write(html);w.document.close();setTimeout(()=>w.print(),500)}
+            const w = window.open('', '_blank')
+            if (w) { w.document.write(html); w.document.close(); setTimeout(() => w.print(), 500) }
           }}
-          className="flex items-center gap-2 text-sm bg-vert text-white px-4 py-2 rounded-lg font-semibold hover:bg-vert-700 transition-colors flex-shrink-0">
+            className="flex items-center gap-2 text-sm bg-vert text-white px-4 py-2 rounded-lg font-semibold hover:bg-vert-700 transition-colors flex-shrink-0">
             🪪 Télécharger
           </button>
         </div>
@@ -272,6 +374,51 @@ export default function PortailMembrePage() {
             )}
           </div>
 
+          {/* Photo de profil dans la section profil */}
+          {!editing && (
+            <div className="flex items-center gap-4 mb-5 pb-5 border-b border-gray-100">
+              <div className="relative group">
+                <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-2 border-gray-200">
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt="Photo de profil" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-8 h-8 text-gray-400" />
+                  )}
+                </div>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingPhoto}
+                  className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                >
+                  {uploadingPhoto ? <Loader2 className="w-5 h-5 text-white animate-spin" /> : <Camera className="w-5 h-5 text-white" />}
+                </button>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-700">{profile?.prenom} {profile?.nom}</p>
+                <div className="flex gap-2 mt-1.5">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingPhoto}
+                    className="text-xs text-vert hover:underline flex items-center gap-1"
+                  >
+                    <Camera className="w-3 h-3" />
+                    {profile?.avatar_url ? 'Changer la photo' : 'Ajouter une photo'}
+                  </button>
+                  {profile?.avatar_url && (
+                    <button
+                      onClick={handleRemovePhoto}
+                      disabled={uploadingPhoto}
+                      className="text-xs text-rouge hover:underline flex items-center gap-1"
+                    >
+                      <X className="w-3 h-3" /> Supprimer
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-gray-400 mt-0.5">JPG, PNG · max 2 Mo</p>
+              </div>
+            </div>
+          )}
+
           {!editing ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               {[
@@ -287,9 +434,51 @@ export default function PortailMembrePage() {
                   <span className="font-medium">{item.value}</span>
                 </div>
               ))}
+              {profile?.bio && (
+                <div className="col-span-2 py-2 border-b border-gray-100">
+                  <span className="text-gray-500 text-xs block mb-1">Bio</span>
+                  <p className="text-sm">{profile.bio}</p>
+                </div>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Photo upload en mode édition */}
+              <div className="col-span-2">
+                <label className="form-label">Photo de profil</label>
+                <div className="flex items-center gap-4 mt-1">
+                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-2 border-gray-200 flex-shrink-0">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-6 h-6 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingPhoto}
+                      className="text-sm border border-vert text-vert px-3 py-1.5 rounded-lg hover:bg-vert-50 flex items-center gap-1.5 transition-colors"
+                    >
+                      {uploadingPhoto ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+                      {profile?.avatar_url ? 'Changer' : 'Ajouter une photo'}
+                    </button>
+                    {profile?.avatar_url && (
+                      <button
+                        type="button"
+                        onClick={handleRemovePhoto}
+                        disabled={uploadingPhoto}
+                        className="text-sm border border-gray-200 text-gray-500 px-3 py-1.5 rounded-lg hover:bg-gray-50 flex items-center gap-1.5"
+                      >
+                        <X className="w-4 h-4" /> Supprimer
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 mt-1.5">JPG, PNG · max 2 Mo</p>
+              </div>
+
               {[
                 { key: 'prenom', label: 'Prénom', maxLength: 50 },
                 { key: 'nom', label: 'Nom', maxLength: 50 },
@@ -309,7 +498,7 @@ export default function PortailMembrePage() {
                 <select className="form-input" value={editForm.niveau || ''}
                   onChange={e => setEditForm({ ...editForm, niveau: e.target.value })}>
                   <option value="">—</option>
-                  {['Licence 1','Licence 2','Licence 3','Master 1','Master 2','Doctorat','Autre'].map(n => <option key={n}>{n}</option>)}
+                  {['Licence 1', 'Licence 2', 'Licence 3', 'Master 1', 'Master 2', 'Doctorat', 'Autre'].map(n => <option key={n}>{n}</option>)}
                 </select>
               </div>
               <div className="col-span-2">
@@ -413,7 +602,7 @@ export default function PortailMembrePage() {
                   <select className="form-input" value={registerForm.niveau}
                     onChange={e => setRegisterForm({ ...registerForm, niveau: e.target.value })}>
                     <option value="">—</option>
-                    {['Licence 1','Licence 2','Licence 3','Master 1','Master 2','Doctorat','Autre'].map(n => <option key={n}>{n}</option>)}
+                    {['Licence 1', 'Licence 2', 'Licence 3', 'Master 1', 'Master 2', 'Doctorat', 'Autre'].map(n => <option key={n}>{n}</option>)}
                   </select></div>
               </div>
               <div><label className="form-label">Mot de passe * <span className="text-gray-400 font-normal text-xs">(8+ car., 1 maj., 1 chiffre)</span></label>
