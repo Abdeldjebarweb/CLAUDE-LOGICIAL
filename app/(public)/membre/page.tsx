@@ -66,9 +66,11 @@ export default function PortailMembrePage() {
   // Upload photo de profil
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || !user) return
+    if (!file || !user) {
+      console.log('Pas de fichier ou pas de user:', { file, user })
+      return
+    }
 
-    // Vérifications
     if (!file.type.startsWith('image/')) {
       setError('Veuillez sélectionner une image.')
       return
@@ -81,39 +83,38 @@ export default function PortailMembrePage() {
     setUploadingPhoto(true)
     setError('')
 
-    // Supprimer l'ancienne photo si elle existe
-    if (profile?.avatar_url) {
-      const oldPath = profile.avatar_url.split('/avatars/')[1]
-      if (oldPath) await supabase.storage.from('avatars').remove([oldPath])
-    }
-
-    // Upload nouvelle photo
     const ext = file.name.split('.').pop()
     const filePath = `${user.id}/avatar.${ext}`
+    console.log('Upload vers:', filePath)
 
     const { error: uploadError } = await supabase.storage
       .from('avatars')
       .upload(filePath, file, { upsert: true })
 
+    console.log('Résultat upload:', uploadError)
+
     if (uploadError) {
-      setError('Erreur lors de l\'upload. Réessayez.')
+      setError('Erreur upload: ' + uploadError.message)
       setUploadingPhoto(false)
       return
     }
 
-    // Récupérer l'URL publique
     const { data: { publicUrl } } = supabase.storage
       .from('avatars')
       .getPublicUrl(filePath)
 
-    // Mettre à jour le profil
-    const { data } = await supabase
+    console.log('URL publique:', publicUrl)
+
+    const { data, error: dbError } = await supabase
       .from('membre_accounts')
       .update({ avatar_url: publicUrl })
       .eq('id', user.id)
       .select()
       .single()
 
+    console.log('Résultat DB:', { data, dbError })
+
+    if (dbError) setError('Erreur DB: ' + dbError.message)
     if (data) setProfile(data)
     setUploadingPhoto(false)
   }
