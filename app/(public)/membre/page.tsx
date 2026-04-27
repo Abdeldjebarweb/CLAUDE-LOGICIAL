@@ -59,8 +59,9 @@ export default function PortailMembrePage() {
       .from('membre_accounts')
       .select('id, prenom, nom, telephone, etablissement, filiere, niveau, ville, bio, statut_adhesion, visible_annuaire, avatar_url')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
     if (data) setProfile(data)
+    else if (!data) setError('')
   }
 
   // Upload photo de profil
@@ -104,10 +105,11 @@ export default function PortailMembrePage() {
       .update({ avatar_url: publicUrl })
       .eq('id', user.id)
       .select()
-      .single()
+      .maybeSingle()
 
     if (dbError) setError('Erreur DB: ' + dbError.message)
     if (data) setProfile(data)
+    else if (!data) setError('')
     setUploadingPhoto(false)
   }
 
@@ -124,9 +126,10 @@ export default function PortailMembrePage() {
       .update({ avatar_url: null })
       .eq('id', user.id)
       .select()
-      .single()
+      .maybeSingle()
 
     if (data) setProfile(data)
+    else if (!data) setError('')
     setUploadingPhoto(false)
   }
 
@@ -215,7 +218,7 @@ export default function PortailMembrePage() {
       .update(safe)
       .eq('id', user.id)
       .select()
-      .single()
+      .maybeSingle()
     setLoading(false)
     if (data) { setProfile(data); setEditing(false) }
   }
