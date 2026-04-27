@@ -19,6 +19,7 @@ export default function TransporteursPage() {
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
   const [filterVille, setFilterVille] = useState('')
   const [sel, setSel] = useState<any>(null)
 
@@ -56,7 +57,7 @@ export default function TransporteursPage() {
       return
     }
     setLoading(true)
-    await supabase.from('transporteurs').insert([{
+    const { error } = await supabase.from('transporteurs').insert([{
       ...form,
       poids_max: form.poids_max ? parseFloat(form.poids_max) : null,
       date_retour: form.date_retour || null,
