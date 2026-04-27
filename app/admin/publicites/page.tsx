@@ -35,7 +35,8 @@ export default function AdminPublicites() {
   }, [])
 
   const updateStatut = async (id: string, statut: string) => {
-    const { error: _mutErr } = await supabase.from('publicites').update({ statut, date_debut: statut === 'valide' ? new Date().toISOString() : null }).eq('id', id)
+    const { error: _supaErr } = await supabase.from('publicites').update({ statut, date_debut: statut === 'valide' ? new Date().toISOString() : null }).eq('id', id)
+    if (_supaErr) console.error("Supabase error:", _supaErr.message)
     if (sel?.id === id) setSel((p: any) => ({ ...p, statut }))
     load()
   }
@@ -142,9 +143,7 @@ export default function AdminPublicites() {
 
               {/* Upload logo */}
               <div>
-                <p className="text-xs font-semibold text-gray-600 mb-2">Logo de l&apos;
-
-    if (_mutErr) { console.error("Supabase error:", _mutErr.message) }entreprise</p>
+                <p className="text-xs font-semibold text-gray-600 mb-2">Logo de l&apos;entreprise</p>
                 <div className="flex items-center gap-3">
                   {sel.logo_url && <img src={sel.logo_url} alt="logo" className="w-12 h-12 rounded-lg object-cover" />}
                   <label className="cursor-pointer flex items-center gap-2 text-xs border rounded-lg px-3 py-2 hover:bg-gray-50">
