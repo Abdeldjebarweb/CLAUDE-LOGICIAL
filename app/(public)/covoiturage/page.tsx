@@ -206,8 +206,8 @@ export default function CovoituragePage() {
                     </div>
                     <div className="flex flex-col gap-2 items-end">
                       <span className="text-xs font-bold text-gray-700">{t.nom_contact}</span>
-                      {t.telephone && (
-                        <a href={`tel:${t.telephone}`} className="flex items-center gap-1.5 text-sm text-vert hover:underline">
+                      {t.telephone && isLoggedIn && (
+                    <a href={`tel:${t.telephone}`} className="flex items-center gap-1.5 text-sm text-vert hover:underline">
                           <Phone className="w-3.5 h-3.5" />{t.telephone}
                         </a>
                       )}
