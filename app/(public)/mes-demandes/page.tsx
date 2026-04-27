@@ -44,7 +44,7 @@ export default function MesDemandesPage() {
     setMessages(data || [])
     // Marquer messages admin comme lus
     if (d.nouveau_message) {
-      const { error: _mutErr } = await supabase.from('help_requests').update({ nouveau_message: false }).eq('id', d.id)
+      await supabase.from('help_requests').update({ nouveau_message: false }).eq('id', d.id)
       await load(userEmail)
     }
   }
@@ -97,9 +97,7 @@ export default function MesDemandesPage() {
     <div className="min-h-screen bg-gray-50 py-10">
       <div className="max-w-3xl mx-auto px-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="font-heading text-2xl font-bold text-gray-900">Mes demandes d&apos;
-
-      if (_mutErr) { console.error("Supabase error:", _mutErr.message) }aide</h1>
+          <h1 className="font-heading text-2xl font-bold text-gray-900">Mes demandes d&apos;aide</h1>
           {unreadCount > 0 && (
             <div className="flex items-center gap-2 bg-vert-50 border border-vert-200 rounded-xl px-3 py-2">
               <Bell className="w-4 h-4 text-vert" />
