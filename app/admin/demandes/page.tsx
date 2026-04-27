@@ -60,8 +60,7 @@ export default function AdminDemandes() {
   const loadMessages = async (demandeId: string) => {
     const { data } = await supabase.from('messages_internes').select('*').eq('demande_id', demandeId).order('created_at', { ascending: true })
     setMessages(data || [])
-    const { error: _supaErr } = await supabase.from('help_requests').update({ nouveau_message: false }).eq('id', demandeId)
-    if (_supaErr) console.error("Supabase error:", _supaErr.message)
+    await supabase.from('help_requests').update({ nouveau_message: false }).eq('id', demandeId)
   }
 
   const openDemande = async (r: any) => {
@@ -163,8 +162,7 @@ export default function AdminDemandes() {
   }
 
   const upd = async (id: string, status: string) => {
-    const { error: _supaErr } = await supabase.from('help_requests').update({ status }).eq('id', id)
-    if (_supaErr) console.error("Supabase error:", _supaErr.message)
+    await supabase.from('help_requests').update({ status }).eq('id', id)
     if (sel?.id === id) setSel((p: any) => ({ ...p, status }))
     load()
   }
