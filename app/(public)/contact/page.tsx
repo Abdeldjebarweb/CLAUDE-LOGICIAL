@@ -145,6 +145,7 @@ export default function ContactUnifiePage() {
       }
 
       setSuccess(true)
+    setForm({ nom: '', email: '', sujet: '', message: '', type: 'general' })
     } catch (err: any) {
       setError("Erreur lors de l'envoi. Appelez le 06 70 37 67 67.")
     }
