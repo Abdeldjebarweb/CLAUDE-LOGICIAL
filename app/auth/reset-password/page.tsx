@@ -12,7 +12,18 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
+  const [sessionReady, setSessionReady] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        setError('Lien de réinitialisation invalide ou expiré. Veuillez refaire une demande.')
+      } else {
+        setSessionReady(true)
+      }
+    })
+  }, [])
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault()
