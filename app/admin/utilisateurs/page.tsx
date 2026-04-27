@@ -2,202 +2,175 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { UserCog, UserPlus, Shield, ShieldOff, Mail, Loader2, CheckCircle, X, Users } from 'lucide-react'
+import { Shield, ShieldOff, Search, Loader2, UserCheck, UserX } from 'lucide-react'
 
 export default function AdminUtilisateurs() {
-  const [users, setUsers] = useState<any[]>([])
+  const [membres, setMembres] = useState<any[]>([])
+  const [admins, setAdmins] = useState<string[]>([])
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
-  const [inviteEmail, setInviteEmail] = useState('')
-  const [inviting, setInviting] = useState(false)
-  const [success, setSuccess] = useState('')
-  const [error, setError] = useState('')
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   const load = async () => {
-    // Charger les membres avec leur rôle
-    const { data } = await supabase
-      .from('membre_accounts')
-      .select('id, prenom, nom, email, role, statut_adhesion, created_at, last_login')
-      .order('created_at', { ascending: false })
-    setUsers(data || [])
+    setLoading(true)
+    const [{ data: m }, { data: a }] = await Promise.all([
+      supabase.from('membre_accounts').select('id, prenom, nom, email, statut_adhesion, created_at').order('created_at', { ascending: false }),
+      supabase.from('admin_emails').select('email'),
+    ])
+    setMembres(m || [])
+    setAdmins((a || []).map((x: any) => x.email))
     setLoading(false)
   }
 
   useEffect(() => { load() }, [])
 
-  const changeRole = async (id: string, role: string) => {
-    await supabase.from('membre_accounts').update({ role }).eq('id', id)
-    load()
-  }
-
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!inviteEmail.includes('@')) { setError('Email invalide'); return }
-    setInviting(true)
-    setError('')
-
-    // Créer le compte admin dans membre_accounts
-    const { error: err2 } = await supabase.from('membre_accounts').insert([{
-      email: inviteEmail,
-      role: 'admin',
-      statut_adhesion: 'membre_actif',
-      visible_annuaire: false,
-      prenom: 'Admin',
-      nom: '',
-    }])
-    if (err2 && err2.code !== '23505') { 
-      setError('Erreur: ' + err2.message)
-      setInviting(false)
-      return 
+  const toggleAdmin = async (email: string, isAdmin: boolean) => {
+    if (!confirm(isAdmin ? `Retirer les droits admin à ${email} ?` : `Donner les droits admin à ${email} ?`)) return
+    setActionLoading(email)
+    if (isAdmin) {
+      await supabase.from('admin_emails').delete().eq('email', email)
+    } else {
+      await supabase.from('admin_emails').insert([{ email }])
     }
-
-    setSuccess(`Invitation envoyée à ${inviteEmail}`)
-    setInviteEmail('')
-    setInviting(false)
-    setTimeout(() => setSuccess(''), 4000)
-    load()
+    await load()
+    setActionLoading(null)
   }
 
-  const roleColors: Record<string, string> = {
-    admin: 'bg-rouge-50 text-rouge',
-    bureau: 'bg-purple-50 text-purple-700',
-    benevole: 'bg-vert-50 text-vert',
-    membre: 'bg-gray-100 text-gray-600',
-  }
-  const roleLabels: Record<string, string> = {
-    admin: '🔴 Admin',
-    bureau: '🟣 Bureau',
-    benevole: '🟢 Bénévole',
-    membre: '⚪ Membre',
+  const toggleStatut = async (id: string, current: string) => {
+    const next = current === 'membre_actif' ? 'non_membre' : 'membre_actif'
+    if (!confirm(`Changer le statut vers "${next}" ?`)) return
+    setActionLoading(id)
+    await supabase.from('membre_accounts').update({ statut_adhesion: next }).eq('id', id)
+    await load()
+    setActionLoading(null)
   }
 
-  const admins = users.filter(u => u.role === 'admin')
-  const autres = users.filter(u => u.role !== 'admin')
+  const filtered = membres.filter(m => {
+    const q = search.toLowerCase()
+    return !q || `${m.prenom} ${m.nom} ${m.email}`.toLowerCase().includes(q)
+  })
+
+  const statutColors: Record<string, string> = {
+    membre_actif: 'bg-vert-50 text-vert',
+    en_attente: 'bg-yellow-50 text-yellow-700',
+    non_membre: 'bg-gray-100 text-gray-500',
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div>
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-bold">Gestion des utilisateurs</h2>
-          <p className="text-sm text-gray-500">{users.length} compte(s) membre</p>
+          <h1 className="font-heading text-2xl font-bold">Utilisateurs</h1>
+          <p className="text-gray-500 text-sm mt-1">{membres.length} membres inscrits · {admins.length} admin(s)</p>
         </div>
-      </div>
-
-      {/* Inviter un admin */}
-      <div className="bg-white rounded-xl border p-6">
-        <h3 className="font-heading font-bold text-base mb-4 flex items-center gap-2">
-          <UserPlus className="w-5 h-5 text-vert" /> Inviter un nouvel admin
-        </h3>
-        {success && (
-          <div className="flex items-center gap-2 bg-vert-50 border border-vert-200 rounded-lg p-3 mb-4 text-sm text-vert">
-            <CheckCircle className="w-4 h-4" /> {success}
-          </div>
-        )}
-        {error && (
-          <div className="text-sm text-rouge bg-rouge-50 p-3 rounded-lg mb-4">⚠️ {error}</div>
-        )}
-        <form onSubmit={handleInvite} className="flex gap-3">
-          <input type="email" required className="form-input flex-1"
-            placeholder="email@exemple.com"
-            value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
-          <button type="submit" disabled={inviting} className="btn-primary flex items-center gap-2 whitespace-nowrap">
-            {inviting ? <><Loader2 className="w-4 h-4 animate-spin" /> Envoi...</> : <><Mail className="w-4 h-4" /> Inviter</>}
-          </button>
-        </form>
-        <p className="text-xs text-gray-400 mt-2">
-          La personne recevra un email pour créer son compte et aura accès à l&apos;admin.
-        </p>
       </div>
 
       {/* Admins actuels */}
-      <div className="bg-white rounded-xl border p-6">
-        <h3 className="font-heading font-bold text-base mb-4 flex items-center gap-2">
-          <Shield className="w-5 h-5 text-rouge" /> Administrateurs ({admins.length})
-        </h3>
-        {admins.length > 0 ? (
-          <div className="space-y-3">
-            {admins.map(u => (
-              <div key={u.id} className="flex items-center justify-between gap-3 p-3 bg-rouge-50/30 border border-rouge-100 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-rouge text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
-                    {u.prenom?.[0] || u.email[0].toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">{u.prenom} {u.nom}</p>
-                    <p className="text-xs text-gray-500">{u.email}</p>
-                    {u.last_login && <p className="text-xs text-gray-400">Dernière connexion : {new Date(u.last_login).toLocaleDateString('fr-FR')}</p>}
-                  </div>
-                </div>
-                <button onClick={() => {
-                  if (confirm(`Rétrograder ${u.email} en membre simple ?`)) changeRole(u.id, 'membre')
-                }} className="text-xs text-gray-400 hover:text-rouge flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-rouge-50">
-                  <ShieldOff className="w-3.5 h-3.5" /> Rétrograder
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-gray-400">Aucun admin pour le moment.</p>
-        )}
+      <div className="card p-5 mb-6">
+        <h2 className="font-semibold text-sm text-gray-700 mb-3 flex items-center gap-2">
+          <Shield className="w-4 h-4 text-vert" /> Administrateurs actuels
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {admins.map(email => (
+            <span key={email} className="flex items-center gap-1.5 bg-vert-50 text-vert text-xs px-3 py-1.5 rounded-full font-medium">
+              <Shield className="w-3 h-3" /> {email}
+            </span>
+          ))}
+        </div>
       </div>
 
-      {/* Tous les membres */}
-      <div className="bg-white rounded-xl border overflow-hidden">
-        <div className="p-4 border-b flex items-center justify-between">
-          <h3 className="font-heading font-bold text-base flex items-center gap-2">
-            <Users className="w-5 h-5 text-vert" /> Tous les membres ({users.length})
-          </h3>
+      {/* Recherche */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <input className="form-input pl-9" placeholder="Rechercher par nom ou email..."
+          value={search} onChange={e => setSearch(e.target.value)} />
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="animate-spin w-8 h-8 border-4 border-vert border-t-transparent rounded-full" />
         </div>
-        {loading ? (
-          <div className="flex justify-center py-10"><div className="animate-spin w-6 h-6 border-4 border-vert border-t-transparent rounded-full" /></div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left font-semibold">Membre</th>
-                  <th className="px-4 py-3 text-left font-semibold hidden md:table-cell">Email</th>
-                  <th className="px-4 py-3 text-left font-semibold">Rôle actuel</th>
-                  <th className="px-4 py-3 text-right font-semibold">Changer rôle</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {users.map(u => (
-                  <tr key={u.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
+      ) : (
+        <div className="card overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 border-b border-gray-100">
+              <tr>
+                <th className="text-left p-4 font-semibold text-gray-600">Membre</th>
+                <th className="text-left p-4 font-semibold text-gray-600">Email</th>
+                <th className="text-left p-4 font-semibold text-gray-600">Statut</th>
+                <th className="text-left p-4 font-semibold text-gray-600">Admin</th>
+                <th className="text-left p-4 font-semibold text-gray-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(m => {
+                const isAdmin = admins.includes(m.email)
+                const isLoading = actionLoading === m.email || actionLoading === m.id
+                return (
+                  <tr key={m.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-vert-100 flex items-center justify-center text-vert text-xs font-bold flex-shrink-0">
-                          {u.prenom?.[0] || u.email[0].toUpperCase()}
+                          {m.prenom?.[0]}{m.nom?.[0]}
                         </div>
-                        <span className="font-medium">{u.prenom} {u.nom || ''}</span>
+                        <span className="font-medium">{m.prenom} {m.nom}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 hidden md:table-cell text-xs">{u.email}</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${roleColors[u.role] || 'bg-gray-100 text-gray-500'}`}>
-                        {roleLabels[u.role] || u.role}
+                    <td className="p-4 text-gray-500">{m.email}</td>
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statutColors[m.statut_adhesion] || 'bg-gray-100 text-gray-500'}`}>
+                        {m.statut_adhesion === 'membre_actif' ? '✅ Actif' : m.statut_adhesion === 'en_attente' ? '⏳ En attente' : '⚪ Non membre'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <select
-                        value={u.role || 'membre'}
-                        onChange={e => changeRole(u.id, e.target.value)}
-                        className="text-xs border rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:border-vert">
-                        <option value="membre">⚪ Membre</option>
-                        <option value="benevole">🟢 Bénévole</option>
-                        <option value="bureau">🟣 Bureau</option>
-                        <option value="admin">🔴 Admin</option>
-                      </select>
+                    <td className="p-4">
+                      {isAdmin ? (
+                        <span className="flex items-center gap-1 text-xs text-vert font-medium">
+                          <Shield className="w-3 h-3" /> Admin
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-400">—</span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        {/* Toggle statut */}
+                        <button
+                          onClick={() => toggleStatut(m.id, m.statut_adhesion)}
+                          disabled={!!isLoading}
+                          className={`flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg transition-colors ${
+                            m.statut_adhesion === 'membre_actif'
+                              ? 'bg-gray-100 text-gray-600 hover:bg-rouge-50 hover:text-rouge'
+                              : 'bg-vert-50 text-vert hover:bg-vert hover:text-white'
+                          }`}
+                        >
+                          {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : m.statut_adhesion === 'membre_actif' ? <UserX className="w-3 h-3" /> : <UserCheck className="w-3 h-3" />}
+                          {m.statut_adhesion === 'membre_actif' ? 'Désactiver' : 'Activer'}
+                        </button>
+                        {/* Toggle admin */}
+                        <button
+                          onClick={() => toggleAdmin(m.email, isAdmin)}
+                          disabled={!!isLoading}
+                          className={`flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg transition-colors ${
+                            isAdmin
+                              ? 'bg-rouge-50 text-rouge hover:bg-rouge hover:text-white'
+                              : 'bg-gray-100 text-gray-600 hover:bg-vert-50 hover:text-vert'
+                          }`}
+                        >
+                          {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : isAdmin ? <ShieldOff className="w-3 h-3" /> : <Shield className="w-3 h-3" />}
+                          {isAdmin ? 'Retirer admin' : 'Rendre admin'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
-                ))}
-                {users.length === 0 && (
-                  <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">Aucun membre inscrit</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                )
+              })}
+            </tbody>
+          </table>
+          {filtered.length === 0 && (
+            <div className="text-center py-10 text-gray-400">Aucun utilisateur trouvé.</div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
