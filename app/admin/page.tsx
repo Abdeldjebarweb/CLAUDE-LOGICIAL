@@ -22,6 +22,7 @@ export default function AdminDashboard() {
   const [monthlyStats, setMonthlyStats] = useState<any[]>([])
 
   const load = useCallback(async () => {
+    try {
     const [
       { count: adhesions }, { count: adhesions_pending },
       { count: demandes }, { count: demandes_new },
@@ -54,6 +55,9 @@ export default function AdminDashboard() {
     setArticles(articlesData || [])
     setRecentDemandes(recentD || [])
     setRecentMessages(recentM || [])
+    } catch (err) {
+      console.error('Erreur chargement stats admin:', err)
+    }
   }, [])
 
   useEffect(() => {
