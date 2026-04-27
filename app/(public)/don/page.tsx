@@ -21,7 +21,8 @@ export default function DonPage() {
   const [form, setForm] = useState({ nom: '', email: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
 
-  const finalMontant = montantCustom ? parseInt(montantCustom) : montant
+  const parsedCustom = montantCustom ? parseInt(montantCustom) : NaN
+  const finalMontant = (!isNaN(parsedCustom) && parsedCustom > 0) ? parsedCustom : montant
 
   const copyRIB = () => {
     navigator.clipboard.writeText('FR76 XXXX XXXX XXXX XXXX XXXX XXX')
@@ -31,6 +32,7 @@ export default function DonPage() {
 
   const handleSubmit = async () => {
     if (!form.nom || !form.email) return
+    if (!finalMontant || finalMontant <= 0 || isNaN(finalMontant)) return
     await supabase.from('donations').insert([{
       donor_name: form.nom,
       donor_email: form.email,
@@ -89,7 +91,7 @@ export default function DonPage() {
                   <div className="mb-5">
                     <label className="form-label">Autre montant (€)</label>
                     <input type="number" className="form-input" placeholder="Montant libre"
-                      value={montantCustom} onChange={e => setMontantCustom(e.target.value)} />
+                      value={montantCustom} onChange={e => setMontantCustom(e.target.value.replace(/[^0-9]/g, ''))} inputMode="numeric" />
                   </div>
 
                   <div className="bg-vert-50 border border-vert-200 rounded-xl p-3 mb-5 text-center">
