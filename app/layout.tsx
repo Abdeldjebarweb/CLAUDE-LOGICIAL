@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: 'https://claude-logicial-84ll.vercel.app',
+    url: 'https://assoeab.fr',
     siteName: 'AEAB – Association des Étudiants Algériens de Bordeaux',
     title: 'AEAB – Association des Étudiants Algériens de Bordeaux',
     description: 'Solidarité, entraide et accompagnement pour les étudiants algériens de Bordeaux.',
