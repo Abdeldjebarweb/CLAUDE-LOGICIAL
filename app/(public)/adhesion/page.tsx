@@ -7,6 +7,7 @@ import { CheckCircle, Loader2 } from 'lucide-react'
 export default function AdhesionPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
   const [form, setForm] = useState({
     last_name: '', first_name: '', email: '', phone: '', city: '',
     institution: '', field: '', level: '', arrival_year: '', message: ''
@@ -15,9 +16,14 @@ export default function AdhesionPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setErrorMsg('')
     const { error } = await supabase.from('memberships').insert([{ ...form, status: 'pending' }])
     setLoading(false)
-    if (!error) setSuccess(true)
+    if (error) {
+      setErrorMsg("Erreur lors de l'envoi. Veuillez réessayer ou contacter associationeab@gmail.com")
+    } else {
+      setSuccess(true)
+    }
   }
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
@@ -44,6 +50,11 @@ export default function AdhesionPage() {
 
       <section className="py-20">
         <div className="max-w-2xl mx-auto px-4">
+          {errorMsg && (
+            <div className="bg-rouge-50 border border-rouge-200 text-rouge text-sm p-4 rounded-xl mb-6">
+              ⚠️ {errorMsg}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div><label className="form-label">Nom *</label><input required className="form-input" value={form.last_name} onChange={set('last_name')} /></div>
@@ -70,7 +81,7 @@ export default function AdhesionPage() {
             <div><label className="form-label">Année d&apos;arrivée en France</label><input className="form-input" value={form.arrival_year} onChange={set('arrival_year')} placeholder="ex: 2024" /></div>
             <div><label className="form-label">Message (optionnel)</label><textarea rows={3} className="form-input" value={form.message} onChange={set('message')} /></div>
             <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
-              {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Envoi...</> : 'Envoyer ma demande d\'adhésion'}
+              {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Envoi...</> : "Envoyer ma demande d'adhésion"}
             </button>
           </form>
         </div>
