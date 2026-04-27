@@ -13,9 +13,10 @@ export default function AdminPartners() {
   useEffect(() => { load() }, [])
   const save = async () => {
     setLoading(true)
-    if (editing.id) await supabase.from('partners').update(editing).eq('id', editing.id)
+    if (editing.id) const { error: _mutErr } = await supabase.from('partners').update(editing).eq('id', editing.id)
     else await supabase.from('partners').insert([editing])
-    setEditing(null); setLoading(false); load()
+    setEditing(null);
+ if (_mutErr) { console.error("Supabase error:", _mutErr.message) } setLoading(false); load()
   }
   const remove = async (id: string) => { if (confirm('Supprimer ?')) { await supabase.from('partners').delete().eq('id', id); load() } }
 
