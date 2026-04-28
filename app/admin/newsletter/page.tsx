@@ -13,8 +13,27 @@ export default function AdminNewsletter() {
   const [sent, setSent] = useState(false)
 
   const loadSubscribers = async () => {
-    const { data } = await supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false })
-    setSubscribers(data || [])
+    // Charger les abonnés newsletter + tous les membres inscrits
+    const [{ data: nlData }, { data: membresData }] = await Promise.all([
+      supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false }),
+      supabase.from('membre_accounts').select('id, email, prenom, nom, created_at').order('created_at', { ascending: false }),
+    ])
+    
+    const nlEmails = (nlData || []).map((s: any) => s.email)
+    
+    // Fusionner: abonnés newsletter + membres pas encore dans newsletter
+    const membresSubs = (membresData || [])
+      .filter((m: any) => !nlEmails.includes(m.email))
+      .map((m: any) => ({
+        id: m.id,
+        email: m.email,
+        nom: `${m.prenom || ''} ${m.nom || ''}`.trim(),
+        statut: 'actif',
+        created_at: m.created_at,
+        source: 'membre',
+      }))
+    
+    setSubscribers([...(nlData || []), ...membresSubs])
   }
   const loadCampagnes = async () => {
     const { data } = await supabase.from('newsletter_campagnes').select('*').order('created_at', { ascending: false })
